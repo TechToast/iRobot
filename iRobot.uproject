@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{56645311-4855-DA97-23A3-84ACD1578F2C}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "iRobot",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	]
+}
