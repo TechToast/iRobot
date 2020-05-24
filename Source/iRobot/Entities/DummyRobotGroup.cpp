@@ -17,6 +17,7 @@ ADummyRobotGroup::ADummyRobotGroup()
 	RootComponent = InstancedMesh;
 }
 
+
 void ADummyRobotGroup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
