@@ -66,3 +66,10 @@ void AEscapeeCharacter::MoveRight(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
+
+void AEscapeeCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser)
+{
+	Super::OnDeath(KillingDamage, DamageEvent, InstigatingPawn, DamageCauser);
+
+}

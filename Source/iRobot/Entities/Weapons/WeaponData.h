@@ -41,9 +41,17 @@ public:
 	float RateOfFire = 2;
 
 	/// How powerful is the impulse of the "bullets" that this weapon fires?
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Data")
-	float ImpactImpulse = 1000.f;
+	//UPROPERTY(EditDefaultsOnly, Category = "Weapon Data")
+	//float ImpactImpulse = 1000.f;
 	
+	/// Type of damage
+	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	TSubclassOf<UDamageType> DamageType;
+
+	/// Damage amount
+	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	int32 HitDamage;
+
 	/// Convert the RateOfFire into an actual time value
 	float GetTimeBetweenShots()
 	{
@@ -102,6 +110,30 @@ public:
 
 
 USTRUCT()
+struct FProjectileData
+{
+	GENERATED_USTRUCT_BODY()
+
+	/// Life time
+	UPROPERTY(EditDefaultsOnly, Category=Projectile)
+	float ProjectileLife = 10.f;
+
+	/// Damage at impact point
+	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
+	int32 ExplosionDamage = 100.f;
+
+	/// Radius of damage
+	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
+	float ExplosionRadius = 300.f;
+
+	/// Type of damage
+	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
+	TSubclassOf<UDamageType> DamageType = UDamageType::StaticClass();
+};
+
+
+
+USTRUCT()
 struct FWeaponAnim
 {
 	GENERATED_USTRUCT_BODY()
@@ -129,61 +161,4 @@ struct FInstantHitInfo
 
 	UPROPERTY()
 	int32 RandomSeed;
-};
-
-
-USTRUCT()
-struct FInstantWeaponData
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** base weapon spread (degrees) */
-	UPROPERTY(EditDefaultsOnly, Category=Accuracy)
-	float WeaponSpread;
-
-	/** targeting spread modifier */
-	UPROPERTY(EditDefaultsOnly, Category=Accuracy)
-	float TargetingSpreadMod;
-
-	/** continuous firing: spread increment */
-	UPROPERTY(EditDefaultsOnly, Category=Accuracy)
-	float FiringSpreadIncrement;
-
-	/** continuous firing: max increment */
-	UPROPERTY(EditDefaultsOnly, Category=Accuracy)
-	float FiringSpreadMax;
-
-	/** weapon range */
-	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
-	float WeaponRange;
-
-	/** damage amount */
-	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
-	int32 HitDamage;
-
-	/** type of damage */
-	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
-	TSubclassOf<UDamageType> DamageType;
-
-	/** hit verification: scale for bounding box of hit actor */
-	UPROPERTY(EditDefaultsOnly, Category=HitVerification)
-	float ClientSideHitLeeway;
-
-	/** hit verification: threshold for dot product between view direction and hit direction */
-	UPROPERTY(EditDefaultsOnly, Category=HitVerification)
-	float AllowedViewDotHitDir;
-
-	/** defaults */
-	FInstantWeaponData()
-	{
-		WeaponSpread = 5.0f;
-		TargetingSpreadMod = 0.25f;
-		FiringSpreadIncrement = 1.0f;
-		FiringSpreadMax = 10.0f;
-		WeaponRange = 10000.0f;
-		HitDamage = 10;
-		DamageType = UDamageType::StaticClass();
-		ClientSideHitLeeway = 200.0f;
-		AllowedViewDotHitDir = 0.8f;
-	}
 };

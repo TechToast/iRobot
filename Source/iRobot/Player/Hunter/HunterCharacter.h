@@ -46,6 +46,7 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	virtual void SpawnDefaultInventory() override;
+	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser) override;
 
 	/// Input
 	void OnFireButtonHeld();
@@ -55,6 +56,12 @@ protected:
 	void AddWeapon(AWeapon* Weapon);
 	void RemoveWeapon(AWeapon* Weapon);
 	void EquipWeapon(AWeapon* Weapon);
+	void OnNextWeapon();
+	void OnPrevWeapon();
+
+	/// RPC to server to equip the weapon
+	UFUNCTION(Reliable, Server, WithValidation)
+	void SERVER_EquipWeapon(AWeapon* NewWeapon);
 
 	/// socket or bone name for attaching weapon mesh
 	UPROPERTY(EditDefaultsOnly, Category = "Hunter")

@@ -18,6 +18,7 @@ public:
 protected:
 	virtual void MoveForward(float Val) override;
 	virtual void MoveRight(float Val) override;
+	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser) override;
 
 	/// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

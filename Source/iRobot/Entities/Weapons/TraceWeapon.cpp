@@ -208,12 +208,13 @@ void ATraceWeapon::DealDamage(const FHitResult& Impact, const FVector& ShootDir)
 	// If we hit something and we are the server, deal the actual damage
 	if (GetNetMode() != NM_Client && Impact.GetActor())
 	{
-		// Did we hit a shootable object?
-		if (Impact.GetActor()->GetClass()->ImplementsInterface(UShootable::StaticClass()))
-		{
-			IShootable* ShootableObject = Cast<IShootable>(Impact.GetActor());
-			ShootableObject->OnShot(Impact.ImpactPoint, ShootDir * GetImpactImpulse(), Impact.BoneName);
-		}
+		FPointDamageEvent PointDmg;
+		PointDmg.DamageTypeClass = GetDamageType();
+		PointDmg.HitInfo = Impact;
+		PointDmg.ShotDirection = ShootDir;
+		PointDmg.Damage = GetHitDamage();
+
+		Impact.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, GetOwningPawn()->Controller, this);
 	}
 }
 

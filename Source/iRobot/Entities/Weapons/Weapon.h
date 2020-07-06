@@ -24,19 +24,21 @@ public:
 	AWeapon(const FObjectInitializer& ObjectInitializer);
 
 	/// Weapon data getters
-	FORCEINLINE float GetRateOfFire() const					{ return WeaponData.RateOfFire; }
-	FORCEINLINE float GetImpactImpulse() const				{ return WeaponData.ImpactImpulse; }
-	FORCEINLINE float GetTimeBetweenShots() 				{ return WeaponData.GetTimeBetweenShots(); }
+	FORCEINLINE float GetRateOfFire() const						{ return WeaponData.RateOfFire; }
+	//FORCEINLINE float GetImpactImpulse() const					{ return WeaponData.ImpactImpulse; }
+	FORCEINLINE float GetTimeBetweenShots() 					{ return WeaponData.GetTimeBetweenShots(); }
+	FORCEINLINE TSubclassOf<UDamageType> GetDamageType() const	{ return WeaponData.DamageType; }
+	FORCEINLINE int32 GetHitDamage() const						{ return WeaponData.HitDamage; }
 
 	/// General getters
-	EWeaponState			GetCurrentState() const			{ return CurrentState; }
-	AHunterCharacter*		GetOwningPawn() const			{ return OwningPawn; }
+	EWeaponState			GetCurrentState() const				{ return CurrentState; }
+	AHunterCharacter*		GetOwningPawn() const				{ return OwningPawn; }
 	USkeletalMeshComponent* GetWeaponMesh() const;
 	FVector					GetMuzzleLocation() const;
 	FVector					GetMuzzleDirection() const;
 
-	bool IsEquipped() const									{ return bIsEquipped; }
-	bool IsAttachedToPawn() const							{ return bIsEquipped/* || bPendingEquip*/; }
+	bool IsEquipped() const										{ return bIsEquipped; }
+	bool IsAttachedToPawn() const								{ return bIsEquipped/* || bPendingEquip*/; }
 
 	/// General setters
 	void SetOwningPawn(AHunterCharacter* InCharacter);

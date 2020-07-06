@@ -50,6 +50,7 @@ void AHunterCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AHunterCharacter, CurrentWeapon);
+	DOREPLIFETIME(AHunterCharacter, Inventory);
 }
 
 
@@ -63,6 +64,9 @@ void AHunterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 		// Bind fire event
 		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHunterCharacter::OnFireButtonHeld);
 		PlayerInputComponent->BindAction("Fire", IE_Released, this, &AHunterCharacter::OnFireButtonReleased);
+
+		PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, this, &AHunterCharacter::OnNextWeapon);
+		PlayerInputComponent->BindAction("PrevWeapon", IE_Pressed, this, &AHunterCharacter::OnPrevWeapon);
 	}
 }
 
@@ -104,6 +108,36 @@ bool AHunterCharacter::CanFire() const
 }
 
 
+void AHunterCharacter::OnNextWeapon()
+{
+	AiRobotPlayerController* MyPC = Cast<AiRobotPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		if (Inventory.Num() >= 2 && (CurrentWeapon == NULL || CurrentWeapon->GetCurrentState() != EWeaponState::Equipping))
+		{
+			const int32 CurrentWeaponIdx = Inventory.IndexOfByKey(CurrentWeapon);
+			AWeapon* NextWeapon = Inventory[(CurrentWeaponIdx + 1) % Inventory.Num()];
+			EquipWeapon(NextWeapon);
+		}
+	}
+}
+
+
+void AHunterCharacter::OnPrevWeapon()
+{
+	AiRobotPlayerController* MyPC = Cast<AiRobotPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		if (Inventory.Num() >= 2 && (CurrentWeapon == NULL || CurrentWeapon->GetCurrentState() != EWeaponState::Equipping))
+		{
+			const int32 CurrentWeaponIdx = Inventory.IndexOfByKey(CurrentWeapon);
+			AWeapon* PrevWeapon = Inventory[(CurrentWeaponIdx - 1 + Inventory.Num()) % Inventory.Num()];
+			EquipWeapon(PrevWeapon);
+		}
+	}
+}
+
+
 void AHunterCharacter::SetCurrentWeapon(AWeapon* NewWeapon)
 {
 	// Unequip the current weapon
@@ -126,51 +160,6 @@ void AHunterCharacter::OnRep_CurrentWeapon()
 {
 	SetCurrentWeapon(CurrentWeapon);
 }
-
-
-/*void AHunterCharacter::FireShot()
-{
-	FHitResult OutHit;
-	FVector Start = FPCameraComponent->GetComponentLocation();
-	FVector ForwardVector = FPCameraComponent->GetForwardVector();
-	FVector End = ((ForwardVector * 5000.f) + Start);
-	FCollisionQueryParams CollisionParams;
-
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
-	{
-		if (OutHit.bBlockingHit)
-		{
-			DrawDebugLine(GetWorld(), FPMuzzleLocation->GetComponentLocation(), OutHit.ImpactPoint, FColor::Red, false, 0.1f, 0, 1);
-			DrawDebugPoint(GetWorld(), OutHit.ImpactPoint, 5.f, FColor::Red, false, 0.25f, 0);
-
-			// Did we hit a shootable object?
-			if (OutHit.Actor->GetClass()->ImplementsInterface(UShootable::StaticClass()))
-			{
-				IShootable* ShootableObject = Cast<IShootable>(OutHit.Actor);
-				ShootableObject->OnShot(OutHit.ImpactPoint, ForwardVector * GetCurrentWeaponImpulse(), OutHit.BoneName);
-			}
-		}
-	}
-	else
-		DrawDebugLine(GetWorld(), FPCameraComponent->GetComponentLocation(), End, FColor::Green, false, 0.1f, 0, 1);
-
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, Start);
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = FPMesh->GetAnimInstance();
-		if (AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
-}*/
 
 
 void AHunterCharacter::SpawnDefaultInventory()
@@ -231,9 +220,21 @@ void AHunterCharacter::EquipWeapon(AWeapon* Weapon)
 		}
 		else
 		{
-			//SERVER_EquipWeapon(Weapon);
+			SERVER_EquipWeapon(Weapon);
 		}
 	}
+}
+
+
+bool AHunterCharacter::SERVER_EquipWeapon_Validate(AWeapon* Weapon)
+{
+	return true;
+}
+
+
+void AHunterCharacter::SERVER_EquipWeapon_Implementation(AWeapon* Weapon)
+{
+	EquipWeapon(Weapon);
 }
 
 
@@ -289,4 +290,18 @@ void AHunterCharacter::StopAllAnimMontages()
 	{
 		UseMesh->AnimScriptInstance->Montage_Stop(0.0f);
 	}
+}
+
+
+void AHunterCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser)
+{
+	Super::OnDeath(KillingDamage, DamageEvent, InstigatingPawn, DamageCauser);
+
+	// Remove all weapons
+	//DestroyInventory();
+
+	// Switch back to 3rd person view
+	//UpdatePawnMeshes();
+
+	//StopAllAnimMontages();
 }
