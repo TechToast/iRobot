@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/CollisionProfile.h"
+#include "iRobotPlayerController.h"
 
 
 AiRobotCharacter::AiRobotCharacter()
@@ -56,6 +58,8 @@ void AiRobotCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	{
 		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 		PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AiRobotCharacter::OnInteractButtonPressed);
 
 		PlayerInputComponent->BindAxis("MoveForward", this, &AiRobotCharacter::MoveForward);
 		PlayerInputComponent->BindAxis("MoveRight", this, &AiRobotCharacter::MoveRight);
@@ -288,7 +292,7 @@ void AiRobotCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& D
 	SetActorEnableCollision(true);
 
 	// Death anim
-	float DeathAnimDuration = PlayAnimMontage(DeathAnim);
+	/*float DeathAnimDuration = PlayAnimMontage(DeathAnim);
 
 	// Ragdoll
 	if (DeathAnimDuration > 0.f)
@@ -304,9 +308,24 @@ void AiRobotCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& D
 		FTimerHandle TimerHandle;
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &AiRobotCharacter::SetRagdollPhysics, FMath::Max(0.1f, TriggerRagdollTime), false);
 	}
-	else
+	else*/
 	{
 		SetRagdollPhysics();
+
+		if (GetNetMode() != NM_DedicatedServer)
+		{
+			// Needed to get the impulse of the damage
+			UDamageType const* const DamageTypeCDO = DamageEvent.DamageTypeClass
+				? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>()
+				: GetDefault<UDamageType>();
+
+			// Point damage event
+			if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+			{
+				FPointDamageEvent* const PointDamageEvent = (FPointDamageEvent*)&DamageEvent;
+				GetMesh()->AddImpulse(PointDamageEvent->ShotDirection * DamageTypeCDO->DamageImpulse, PointDamageEvent->HitInfo.BoneName);
+			}
+		}
 	}
 
 	// disable collisions on capsule
@@ -357,15 +376,7 @@ void AiRobotCharacter::SetRagdollPhysics()
 {
 	bool bInRagdoll = false;
 
-	if (IsPendingKill())
-	{
-		bInRagdoll = false;
-	}
-	else if (!GetMesh() || !GetMesh()->GetPhysicsAsset())
-	{
-		bInRagdoll = false;
-	}
-	else
+	if (!IsPendingKill() && GetMesh() && GetMesh()->GetPhysicsAsset())
 	{
 		// initialize physics/etc
 		GetMesh()->SetSimulatePhysics(true);
@@ -390,4 +401,71 @@ void AiRobotCharacter::SetRagdollPhysics()
 	{
 		SetLifeSpan(10.0f);
 	}
+}
+
+
+void AiRobotCharacter::OnInteractButtonPressed()
+{
+	AiRobotPlayerController* PC = Cast<AiRobotPlayerController>(Controller);
+	if (PC && PC->IsGameInputAllowed())
+	{
+		Interact();
+	}
+}
+
+
+void AiRobotCharacter::Interact()
+{
+	// Interaction is done on the server
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		SERVER_StartInteraction();
+		return;
+	}
+
+	FVector StartTrace = GetCapsuleComponent()->GetComponentLocation();
+	FVector EndTrace = (GetActorForwardVector() * MaxInteractionDistance) + StartTrace;
+
+	FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(InteractionTrace), true, this);
+
+	FHitResult Hit(ForceInit);
+	GetWorld()->LineTraceSingleByProfile(Hit, StartTrace, EndTrace, UCollisionProfile::BlockAll_ProfileName, TraceParams);
+
+	if (Hit.bBlockingHit && Hit.Actor != nullptr)
+	{
+		if (IInteractable* InteractableActor = Cast<IInteractable>(Hit.Actor))
+		{
+			InteractableActor->OnInteraction(this, Hit);
+		}
+	}
+}
+
+
+bool AiRobotCharacter::SERVER_StartInteraction_Validate()
+{
+	return true;
+}
+
+
+void AiRobotCharacter::SERVER_StartInteraction_Implementation()
+{
+	Interact();
+}
+
+
+bool AiRobotCharacter::HasInteractionCabability(EInteractionCapability InCapability)
+{
+	return InteractionCapabilities & (int32)InCapability;
+}
+
+
+void AiRobotCharacter::SetInteractionCapability(EInteractionCapability InCapability)
+{
+	InteractionCapabilities |= InCapability;
+}
+
+
+void AiRobotCharacter::RemoveInteractionCapability(EInteractionCapability InCapability)
+{
+	InteractionCapabilities &= ~InCapability;
 }

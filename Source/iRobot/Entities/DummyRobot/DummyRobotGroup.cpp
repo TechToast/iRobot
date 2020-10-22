@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "iRobot.h"
 #include "DrawDebugHelpers.h"
+#include "Interfaces/IInteraction.h"
 
 
 ADummyRobotGroup::ADummyRobotGroup()
@@ -98,8 +99,9 @@ float ADummyRobotGroup::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 			int32 CellIndex = (Cell.Column * NumRows) + Cell.Row;
 			if (CellIndex < GridCells.Items.Num())
 			{
-				FDamageEvent EvtRef = DamageEvent;
+				//FDamageEvent EvtRef = DamageEvent;
 				GridCells.Items[CellIndex].bOccupied = false;
+				GridCells.Items[CellIndex].ChangeReason = EGridCellChangedReason::Damaged;
 				GridCells.Items[CellIndex].ImpactLocation = PointDamageEvent->HitInfo.ImpactPoint;
 				GridCells.Items[CellIndex].ImpactVelocity = PointDamageEvent->ShotDirection * DamageTypeCDO->DamageImpulse;
 				GridCells.MarkItemDirty(GridCells.Items[CellIndex]);
@@ -123,13 +125,15 @@ float ADummyRobotGroup::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 				int32 CellIndex = (Cell.Column * NumRows) + Cell.Row;
 				if (CellIndex < GridCells.Items.Num())
 				{
-					FDamageEvent EvtRef = DamageEvent;
+					//FDamageEvent EvtRef = DamageEvent;
 					GridCells.Items[CellIndex].bOccupied = false;
+					GridCells.Items[CellIndex].ChangeReason = EGridCellChangedReason::Damaged;
 					GridCells.Items[CellIndex].ImpactLocation = RadialDamageImpactPoint;
 
-					FTransform InstanceTransform = GetActorTransform() * FTransform(InstancedMesh->PerInstanceSMData[CellIndex].Transform);
-					FVector Direction = (InstanceTransform.GetLocation() + RadialDamageImpactPoint - RadialDamageEvent->Origin).GetSafeNormal();
-					GridCells.Items[CellIndex].ImpactVelocity = Direction * DamageTypeCDO->DamageImpulse;
+					FTransform InstanceTransform = GetActorTransform() * CellTransforms[Cell];
+					FVector Diff = (InstanceTransform.GetLocation() + RadialDamageImpactPoint - RadialDamageEvent->Origin);
+					float DamageScale = RadialDamageEvent->Params.GetDamageScale(Diff.Size());
+					GridCells.Items[CellIndex].ImpactVelocity = Diff.GetSafeNormal() * FMath::Lerp(DamageTypeCDO->DamageImpulse * 0.5f, DamageTypeCDO->DamageImpulse, DamageScale);
 
 					GridCells.MarkItemDirty(GridCells.Items[CellIndex]);
 
@@ -162,15 +166,24 @@ void ADummyRobotGroup::RemoveInstances(TArray<int32> InstanceIds)
 
 void ADummyRobotGroup::GenerateInitialGrid()
 {
-	if (GetLocalRole() == ROLE_Authority && !bGridInitialised)
+	if (!bGridInitialised)
 	{
 		for (int32 Column = 0; Column < NumColumns; ++Column)
 		{
 			for (int32 Row = 0; Row < NumRows; ++Row)
 			{
 				FGridCell2D Cell(Row, Column);
-				Cell.bOccupied = true;
-				GridCells.MarkItemDirty(GridCells.Items.Add_GetRef(Cell));
+
+				if (GetLocalRole() == ROLE_Authority)
+				{
+					Cell.bOccupied = true;
+					GridCells.MarkItemDirty(GridCells.Items.Add_GetRef(Cell));
+				}
+
+				// Cache the transforms separately on server and client as they are fixed and don't need to be replicated
+				FTransform Trans = GetActorTransform();
+				Trans.SetLocation(FVector(Spacing.X * Row, Spacing.Y * Column, 0.f));
+				CellTransforms.Add(Cell, Trans);
 			}
 		}
 	}
@@ -207,7 +220,7 @@ bool ADummyRobotGroup::FindClosestInstance(FVector InLocation, int32& OutInstanc
 	{
 		OutGridCell = Cell;
 		OutInstanceId = CellToInstanceMapping[Cell];
-		OutInstanceTransform = FTransform(InstancedMesh->PerInstanceSMData[OutInstanceId].Transform);
+		OutInstanceTransform = CellTransforms[Cell];
 		return true;
 	}
 	else
@@ -243,7 +256,7 @@ bool ADummyRobotGroup::FindInstancesInRange(FVector InLocation, float InRadius, 
 			
 			if (CellToInstanceMapping.Contains(AffectedCell))
 			{
-				FTransform InstanceTransform(InstancedMesh->PerInstanceSMData[CellToInstanceMapping[AffectedCell]].Transform);
+				FTransform InstanceTransform(CellTransforms[AffectedCell]);
 				FVector Diff = InstanceTransform.GetLocation() - InLocation;
 				if (Diff.SizeSquared() < DistSquareThreshold)
 					AffectedCells.Add(AffectedCell);
@@ -259,19 +272,34 @@ void ADummyRobotGroup::OnGridCellChange(const struct FGridCell2D& ChangedGridCel
 {
 	if (CellToInstanceMapping.Contains(ChangedGridCell))
 	{
-		// Grab the transform before removing the instance
-		FTransform SpawnTransform(InstancedMesh->PerInstanceSMData[CellToInstanceMapping[ChangedGridCell]].Transform);
-
-		// Remove the static mesh instance on all machines including the server
-		RemoveInstance(CellToInstanceMapping[ChangedGridCell]);
-
-		// Spawn the ragdoll on all but dedicated server
-		if (GetNetMode() != NM_DedicatedServer)
+		// Damaged or dissolved
+		if (ChangedGridCell.ChangeReason == EGridCellChangedReason::Damaged ||
+			ChangedGridCell.ChangeReason == EGridCellChangedReason::Dissolved)
 		{
-			FVector Location = GetActorTransform().TransformPosition(SpawnTransform.GetLocation());
-			ADummyRobot* NewDummyRobot = GetWorld()->SpawnActor<ADummyRobot>(DummyRobotClass.LoadSynchronous(), Location, FRotator(GetActorTransform().GetRotation()));
-			if (NewDummyRobot)
-				NewDummyRobot->ApplyImpulse(ChangedGridCell.ImpactLocation, ChangedGridCell.ImpactVelocity);
+			// Grab the transform before removing the instance
+			FTransform SpawnTransform(CellTransforms[ChangedGridCell]);
+
+			// Remove the static mesh instance on all machines including the server
+			RemoveInstance(CellToInstanceMapping[ChangedGridCell]);
+
+			// Spawn the ragdoll on all but dedicated server
+			if (GetNetMode() != NM_DedicatedServer)
+			{
+				bool bDamaged = ChangedGridCell.ChangeReason == EGridCellChangedReason::Damaged;
+				UClass* ClassToUse = bDamaged ? DummyRobotClass_Damaged.LoadSynchronous() : DummyRobotClass_Dissolved.LoadSynchronous();
+
+				FVector Location = GetActorTransform().TransformPosition(SpawnTransform.GetLocation());
+				ADummyRobot* NewDummyRobot = GetWorld()->SpawnActor<ADummyRobot>(ClassToUse, Location, FRotator(GetActorTransform().GetRotation()));
+				if (NewDummyRobot && bDamaged)
+					NewDummyRobot->ApplyImpulse(ChangedGridCell.ImpactLocation, ChangedGridCell.ImpactVelocity);
+			}
+
+		}
+
+		// Respawned
+		else if (ChangedGridCell.ChangeReason == EGridCellChangedReason::Respawned)
+		{
+
 		}
 	}
 }
@@ -280,3 +308,32 @@ void ADummyRobotGroup::OnGridCellChange(const struct FGridCell2D& ChangedGridCel
 /*void ADummyRobotGroup::OnRep_GridCells()
 {
 }*/
+
+
+void ADummyRobotGroup::OnInteraction(IInteractor* InInstigator, FHitResult& InteractionHit)
+{
+	// Only allow interaction on server
+	if (GetLocalRole() != ROLE_Authority)
+		return;
+
+	if (InInstigator && InInstigator->HasInteractionCabability(INTERACTION_CAPABILITY_DissolveRobot))
+	{
+		FTransform InstanceTransform;
+		int32 InstanceId;
+		FGridCell2D Cell;
+		if (FindClosestInstance(InteractionHit.ImpactPoint, InstanceId, Cell, InstanceTransform))
+		{
+			// Rely on the fact that the array order is correct on server
+			int32 CellIndex = (Cell.Column * NumRows) + Cell.Row;
+			if (CellIndex < GridCells.Items.Num())
+			{
+				GridCells.Items[CellIndex].bOccupied = false;
+				GridCells.Items[CellIndex].ChangeReason = EGridCellChangedReason::Dissolved;
+				GridCells.MarkItemDirty(GridCells.Items[CellIndex]);
+
+				// Manually trigger the callback on server
+				OnGridCellChange(GridCells.Items[CellIndex]);
+			}
+		}
+	}
+}

@@ -5,6 +5,15 @@
 
 class ADummyRobotGroup;
 
+UENUM()
+enum class EGridCellChangedReason : uint8
+{
+	Damaged,
+	Dissolved,
+	Respawned
+};
+
+
 /// FastArray replication (See NetSerialization.h for notes)
 ///
 
@@ -25,6 +34,10 @@ public:
 	UPROPERTY()
 	bool bOccupied;
 
+	/// The reason the cell was changed
+	UPROPERTY()
+	EGridCellChangedReason ChangeReason = EGridCellChangedReason::Damaged;
+
 	/// The velocity of the last impact
 	UPROPERTY()
 	FVector_NetQuantize ImpactVelocity = FVector::ZeroVector;
@@ -42,6 +55,7 @@ public:
 		: Row(OtherCell.Row)
 		, Column(OtherCell.Column)
 		, bOccupied(OtherCell.bOccupied)
+		, ChangeReason(OtherCell.ChangeReason)
 		, ImpactVelocity(OtherCell.ImpactVelocity)
 		, ImpactLocation(OtherCell.ImpactLocation)
 	{}

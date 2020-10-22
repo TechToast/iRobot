@@ -96,16 +96,16 @@ void AProjectile::Explode(const FHitResult& Impact)
 	if (GetNetMode() != NM_Client && GetExplosionDamage() > 0 && GetExplosionRadius() > 0 && GetDamageType())
 		UGameplayStatics::ApplyRadialDamage(this, GetExplosionDamage(), NudgedImpactLocation, GetExplosionRadius(), GetDamageType(), TArray<AActor*>(), this, MyController.Get());
 
-	/*if (ExplosionTemplate)
+	if (ExplosionTemplate)
 	{
 		FTransform const SpawnTransform(Impact.ImpactNormal.Rotation(), NudgedImpactLocation);
-		AShooterExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AShooterExplosionEffect>(ExplosionTemplate, SpawnTransform);
+		AExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AExplosionEffect>(ExplosionTemplate, SpawnTransform);
 		if (EffectActor)
 		{
 			EffectActor->SurfaceHit = Impact;
 			UGameplayStatics::FinishSpawningActor(EffectActor, SpawnTransform);
 		}
-	}*/
+	}
 
 	bExploded = true;
 }

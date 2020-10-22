@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "DummyRobotGridData.h"
+#include "Interfaces/IInteraction.h"
 #include "DummyRobotGroup.generated.h"
 
 class ADummyRobot;
@@ -12,7 +13,7 @@ class UHierarchicalInstancedStaticMeshComponent;
 DECLARE_DELEGATE_OneParam(FGridCellChangeDelegate, const struct FGridCell2D& /*ChangedGridCell*/);
 
 UCLASS()
-class IROBOT_API ADummyRobotGroup : public AActor
+class IROBOT_API ADummyRobotGroup : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 	
@@ -45,6 +46,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Damage")
 	FVector RadialDamageImpactPoint = FVector(0, 0, 50.f);
 
+	/// Start IInteractable interface
+	virtual void OnInteraction(IInteractor* InInstigator, FHitResult& InteractionHit) override;
+	/// End IInteractable interface
+
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -56,10 +61,14 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	UHierarchicalInstancedStaticMeshComponent* InstancedMesh;
 
-	/// Dynamic mesh of the robot
+	/// Dummy robot to use when damaged
 	UPROPERTY(EditDefaultsOnly, Category = Mesh)
-	TSoftClassPtr<ADummyRobot> DummyRobotClass;
+	TSoftClassPtr<ADummyRobot> DummyRobotClass_Damaged;
 	
+	/// Dummy robot to use when dissolved
+	UPROPERTY(EditDefaultsOnly, Category = Mesh)
+	TSoftClassPtr<ADummyRobot> DummyRobotClass_Dissolved;
+
 private:
 
 	/// Get the closest instance to the given location
@@ -95,6 +104,9 @@ private:
 
 	/// Data structure to map the given cell to an instance ID
 	TMap<FGridCell2D, int32> CellToInstanceMapping;
+
+	/// Cache the transforms of each grid cell
+	TMap<FGridCell2D, FTransform> CellTransforms;
 
 	bool bGridInitialised = false;
 };

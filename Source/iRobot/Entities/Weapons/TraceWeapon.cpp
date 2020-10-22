@@ -6,7 +6,6 @@
 #include "net/UnrealNetwork.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
-#include "Interfaces/IShootable.h"
 
 ATraceWeapon::ATraceWeapon(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {

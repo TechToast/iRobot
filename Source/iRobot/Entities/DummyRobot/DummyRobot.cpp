@@ -6,7 +6,8 @@
 
 ADummyRobot::ADummyRobot()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	
 	// This actor is client only
 	SetReplicates(false);
@@ -36,6 +37,15 @@ void ADummyRobot::BeginPlay()
 
 	RadialDelegate.BindUFunction(this, FName(TEXT("OnRadialDamageReceived")));
 	OnTakeRadialDamage.Add(RadialDelegate);
+
+	// Create dynamic material instances
+	if (DynamicMesh)
+	{
+		for (int32 Index = 0; Index < DynamicMesh->GetNumMaterials(); Index++)
+		{
+			Materials.Add(DynamicMesh->CreateDynamicMaterialInstance(Index));
+		}
+	}
 }
 
 
@@ -47,6 +57,34 @@ void ADummyRobot::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	OnTakePointDamage.Remove(PointDelegate);
 	OnTakeRadialDamage.Remove(RadialDelegate);
+}
+
+
+void ADummyRobot::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (ElapsedDissolveTime >= DissolveTime)
+	{
+		this->Destroy();
+	}
+	else
+	{
+		ElapsedDissolveTime += DeltaSeconds;
+
+		float DissolveAmount = ElapsedDissolveTime / DissolveTime;
+
+		if (DissolveParamName != NAME_None)
+		{
+			for (auto DynMat : Materials)
+			{
+				if (DynMat.IsValid())
+				{
+					DynMat->SetScalarParameterValue(DissolveParamName, DissolveAmount);
+				}
+			}
+		}
+	}
 }
 
 
@@ -81,5 +119,21 @@ void ADummyRobot::OnRadialDamageReceived(AActor* DamagedActor, float Damage, con
 
 void ADummyRobot::RemoveAfterDelay()
 {
-	this->Destroy();
+	// Prevent any further replication
+	if (GetLocalRole() == ROLE_Authority)
+		TearOff();
+
+	// We can now delete this actor on dedicated server
+	if (GetNetMode() == NM_DedicatedServer)
+	{
+		this->Destroy();
+	}
+
+	// On clients we need to dissolve it
+	else
+	{
+		ElapsedDissolveTime = 0;
+		SetActorTickEnabled(true);
+	}
+
 }

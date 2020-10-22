@@ -35,6 +35,10 @@ AEscapeeCharacter::AEscapeeCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Set up the interaction capabilities for this character here
+	SetInteractionCapability(INTERACTION_CAPABILITY_OpenDoors);
+	SetInteractionCapability(INTERACTION_CAPABILITY_DissolveRobot);
 }
 
 
@@ -51,6 +55,7 @@ void AEscapeeCharacter::MoveForward(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
 
 void AEscapeeCharacter::MoveRight(float Value)
 {
@@ -71,5 +76,4 @@ void AEscapeeCharacter::MoveRight(float Value)
 void AEscapeeCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser)
 {
 	Super::OnDeath(KillingDamage, DamageEvent, InstigatingPawn, DamageCauser);
-
 }

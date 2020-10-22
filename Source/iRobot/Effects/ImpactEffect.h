@@ -1,29 +1,11 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include "EffectData.h"
 #include "GameFramework/Actor.h"
 #include "ImpactEffect.generated.h"
 
 class UParticleSystem;
 class USoundCue;
-
-USTRUCT()
-struct FDecalData
-{
-	GENERATED_USTRUCT_BODY()
-
-	/// Material
-	UPROPERTY(EditDefaultsOnly, Category=Decal)
-	UMaterial* DecalMaterial;
-
-	/// Quad size (width & height)
-	UPROPERTY(EditDefaultsOnly, Category=Decal)
-	float DecalSize = 256.f;
-
-	/// Lifespan
-	UPROPERTY(EditDefaultsOnly, Category=Decal)
-	float LifeSpan = 10.f;
-};
 
 
 // Spawnable effect for weapon hit impact - NOT replicated to clients

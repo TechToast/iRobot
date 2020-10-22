@@ -42,6 +42,9 @@ AHunterCharacter::AHunterCharacter()
 
 	// Collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
+
+	// Set up the interaction capabilities for this character here
+	SetInteractionCapability(INTERACTION_CAPABILITY_OpenDoors);
 }
 
 
@@ -58,10 +61,8 @@ void AHunterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// set up gameplay key bindings
 	if (PlayerInputComponent)
 	{
-		// Bind fire event
 		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHunterCharacter::OnFireButtonHeld);
 		PlayerInputComponent->BindAction("Fire", IE_Released, this, &AHunterCharacter::OnFireButtonReleased);
 
@@ -138,11 +139,24 @@ void AHunterCharacter::OnPrevWeapon()
 }
 
 
-void AHunterCharacter::SetCurrentWeapon(AWeapon* NewWeapon)
+void AHunterCharacter::SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon)
 {
-	// Unequip the current weapon
-	if (CurrentWeapon)
-		CurrentWeapon->OnUnEquip();
+	AWeapon* LocalLastWeapon = nullptr;
+
+	if (LastWeapon != nullptr)
+	{
+		LocalLastWeapon = LastWeapon;
+	}
+	else if (NewWeapon != CurrentWeapon)
+	{
+		LocalLastWeapon = CurrentWeapon;
+	}
+
+	// Unequip previous
+	if (LocalLastWeapon)
+	{
+		LocalLastWeapon->OnUnEquip();
+	}
 
 	CurrentWeapon = NewWeapon;
 
@@ -156,9 +170,9 @@ void AHunterCharacter::SetCurrentWeapon(AWeapon* NewWeapon)
 }
 
 
-void AHunterCharacter::OnRep_CurrentWeapon()
+void AHunterCharacter::OnRep_CurrentWeapon(AWeapon* LastWeapon)
 {
-	SetCurrentWeapon(CurrentWeapon);
+	SetCurrentWeapon(CurrentWeapon, LastWeapon);
 }
 
 
@@ -216,7 +230,7 @@ void AHunterCharacter::EquipWeapon(AWeapon* Weapon)
 	{
 		if (GetLocalRole() == ROLE_Authority)
 		{
-			SetCurrentWeapon(Weapon);
+			SetCurrentWeapon(Weapon, CurrentWeapon);
 		}
 		else
 		{

@@ -47,7 +47,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	virtual void SpawnDefaultInventory() override;
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser) override;
-
+	
 	/// Input
 	void OnFireButtonHeld();
 	void OnFireButtonReleased();
@@ -91,7 +91,7 @@ private:
 	void StopAllAnimMontages();
 
 	/// Set the given weapon as the current weapon
-	void SetCurrentWeapon(AWeapon* NewWeapon);
+	void SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon = nullptr);
 
 	/// Currently equipped weapon
 	UPROPERTY(Transient, ReplicatedUsing=OnRep_CurrentWeapon)
@@ -99,7 +99,7 @@ private:
 
 	/// Called when CurrentWeapon is replicated
 	UFUNCTION()
-	void OnRep_CurrentWeapon();
+	void OnRep_CurrentWeapon(AWeapon* LastWeapon);
 
 	bool bWantsToFire = false;
 };

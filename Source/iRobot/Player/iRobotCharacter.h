@@ -3,12 +3,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "iRobotHitInfo.h"
+#include "Interfaces/IInteraction.h"
+#include "iRobotCharacterData.h"
 #include "iRobotCharacter.generated.h"
 
 class USoundCue;
 
 UCLASS()
-class IROBOT_API AiRobotCharacter : public ACharacter
+class IROBOT_API AiRobotCharacter : public ACharacter, public IInteractor
 {
 	GENERATED_BODY()
 
@@ -28,6 +30,7 @@ protected:
 	virtual void MoveRight(float Val);
 	virtual void TurnAtRate(float Rate);
 	virtual void LookUpAtRate(float Rate);
+	void OnInteractButtonPressed();
 
 	/// Base turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -37,12 +40,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseLookUpRate;
 
+	/// How far from the character objects can be interacted with
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	float MaxInteractionDistance = 100.f;
+
 	/// Animation played on death
-	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* DeathAnim;
+	//UPROPERTY(EditDefaultsOnly, Category = Animation)
+	//UAnimMontage* DeathAnim;
 
 	/// Sound played on death, local player only
-	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	USoundCue* DeathSound;
 
 	/// Default health value
@@ -55,7 +62,20 @@ protected:
 	/// This character has just died
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* InstigatingPawn, class AActor* DamageCauser);
 
+	/// Start IInteractor interface
+	virtual bool HasInteractionCabability(EInteractionCapability InCapability);
+	virtual void SetInteractionCapability(EInteractionCapability InCapability);
+	virtual void RemoveInteractionCapability(EInteractionCapability InCapability);
+	/// End IInteract interface
+
 private:
+
+	/// Interact with an interactable object
+	void Interact();
+
+	/// RPC to server to perform an Interaction operation
+	UFUNCTION(Reliable, Server, WithValidation)
+	void SERVER_StartInteraction();
 
 	/// Play hit effects
 	void PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);
@@ -85,4 +105,7 @@ private:
 	float Health;
 
 	bool bIsDying = false;
+
+	/// The interaction capabilities of this character
+	int32 InteractionCapabilities = 0;
 };

@@ -3,6 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "WeaponData.h"
 #include "ProjectileWeapon.h"
+#include "Effects/ExplosionEffect.h"
 #include "Projectile.generated.h"
 
 class UProjectileMovementComponent;
@@ -26,8 +27,8 @@ public:
 	FORCEINLINE UParticleSystemComponent* GetParticleComp() const		{ return ParticleComp; }
 
 	/// Effects for explosion
-	//UPROPERTY(EditDefaultsOnly, Category = Effects)
-	//TSubclassOf<class AShooterExplosionEffect> ExplosionTemplate;
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+	TSubclassOf<class AExplosionEffect> ExplosionTemplate;
 
 	/// Weapon data
 	UPROPERTY(EditDefaultsOnly, Category = Config)
