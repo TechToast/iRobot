@@ -18,7 +18,7 @@ public:
 
 	/// How long to wait after being shot before removing from the world
 	UPROPERTY(EditDefaultsOnly, Category = "Dissolve")
-	float TimeBeforeRemoval = 10.f;
+	FVector2D TimeBeforeRemovalRange = FVector2D(5.f, 8.f);
 
 	/// How long the dissolve effect should take
 	UPROPERTY(EditDefaultsOnly, Category = "Dissolve")

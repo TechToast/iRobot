@@ -47,7 +47,8 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	virtual void SpawnDefaultInventory() override;
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser) override;
-	
+	virtual FTransform GetCameraTransform() const override;
+
 	/// Input
 	void OnFireButtonHeld();
 	void OnFireButtonReleased();

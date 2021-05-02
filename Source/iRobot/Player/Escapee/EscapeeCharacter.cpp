@@ -5,6 +5,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Player/iRobotPlayerController.h"
+#include "EscapeeAnimInstance.h"
+#include "Net/UnrealNetwork.h"
+#include "Entities/HidingPlace/HidingPlaceUtils.h"
+#include "Entities/HidingPlace/IHideCompatible.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // AEscapeeCharacter
@@ -42,8 +48,67 @@ AEscapeeCharacter::AEscapeeCharacter()
 }
 
 
+void AEscapeeCharacter::Tick(float Delta)
+{
+	Super::Tick(Delta);
+	/*
+	UE_LOG(LogTemp, Log, TEXT("Location = %f, %f, %f"), 
+		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).X, 
+		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).Y,
+		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).Z);
+	UE_LOG(LogTemp, Log, TEXT("Rotation = %f, %f, %f"), 
+		CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Pitch, CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Yaw, CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Roll);
+	*/
+}
+
+
+void AEscapeeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(AEscapeeCharacter, HideState, COND_None);
+}
+
+
+void AEscapeeCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetMesh())
+	{
+		AnimInstance = Cast<UEscapeeAnimInstance>(GetMesh()->GetAnimInstance());
+		ensureMsgf(AnimInstance.IsValid(), TEXT("AEscapeeCharacter::BeginPlay() - Anim instance doesn't inherit from UEscapeeAnimInstance."));
+	}
+}
+
+
+void AEscapeeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// Set up gameplay key bindings
+	if (PlayerInputComponent)
+	{
+		PlayerInputComponent->BindAction("[ESCAPEE]Interact", IE_Pressed, this, &AEscapeeCharacter::OnInteractButtonPressed);
+
+		PlayerInputComponent->BindAction("Hide", IE_Pressed, this, &AEscapeeCharacter::OnHideButtonHeld);
+		PlayerInputComponent->BindAction("Hide", IE_Released, this, &AEscapeeCharacter::OnHideButtonReleased);
+	}
+}
+
+
+FTransform AEscapeeCharacter::GetCameraTransform() const
+{
+	return FollowCamera->GetComponentTransform();
+}
+
+
 void AEscapeeCharacter::MoveForward(float Value)
 {
+	// No movement if hidden
+	if (HideState != EHidingPlaceType::HP_None)
+		return;
+
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -59,6 +124,10 @@ void AEscapeeCharacter::MoveForward(float Value)
 
 void AEscapeeCharacter::MoveRight(float Value)
 {
+	// No movement if hidden
+	if (HideState != EHidingPlaceType::HP_None)
+		return;
+
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is right
@@ -76,4 +145,152 @@ void AEscapeeCharacter::MoveRight(float Value)
 void AEscapeeCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser)
 {
 	Super::OnDeath(KillingDamage, DamageEvent, InstigatingPawn, DamageCauser);
+}
+
+
+void AEscapeeCharacter::OnHideButtonHeld()
+{
+	AiRobotPlayerController* PC = Cast<AiRobotPlayerController>(Controller);
+	if (PC && PC->IsGameInputAllowed())
+	{
+		Hide();
+	}
+}
+
+
+void AEscapeeCharacter::OnHideButtonReleased()
+{
+	AiRobotPlayerController* PC = Cast<AiRobotPlayerController>(Controller);
+	if (PC && PC->IsGameInputAllowed())
+	{
+		UnHide();
+	}
+}
+
+
+void AEscapeeCharacter::Hide()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		SERVER_Hide();
+		return;
+	}
+
+	if (HideState == EHidingPlaceType::HP_None)
+	{
+		TScriptInterface<IHideCompatible> HidingPlace;
+		if (GetHidingPlace(HidingPlace))
+		{
+			HideState = HidingPlace->GetHidingPlaceType();
+			OnRep_HideState();
+
+			CurrentHidingPlace = HidingPlace;
+
+			// Prepare the hiding place for us to hide in
+			HidingPlaceReadyHandle = CurrentHidingPlace->GetOnHidingPlaceReadyEvent()->AddUObject(this, &AEscapeeCharacter::OnHidingPlaceReady);
+			CurrentHidingPlace->PrepareHidingPlace(GetActorLocation());
+		}
+	}
+}
+
+
+void AEscapeeCharacter::UnHide()
+{
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		SERVER_UnHide();
+		return;
+	}
+
+	if (HideState != EHidingPlaceType::HP_None)
+	{
+		HideState = EHidingPlaceType::HP_None;
+		OnRep_HideState();
+	}
+}
+
+
+void AEscapeeCharacter::OnRep_HideState()
+{
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		if (AnimInstance.IsValid())
+			AnimInstance->bFrozen = HideState == EHidingPlaceType::HP_Freeze;
+	}
+}
+
+
+bool AEscapeeCharacter::SERVER_Hide_Validate()
+{
+	return true;
+}
+
+
+void AEscapeeCharacter::SERVER_Hide_Implementation()
+{
+	Hide();
+}
+
+
+bool AEscapeeCharacter::SERVER_UnHide_Validate()
+{
+	return true;
+}
+
+
+void AEscapeeCharacter::SERVER_UnHide_Implementation()
+{
+	UnHide();
+}
+
+
+bool AEscapeeCharacter::GetHidingPlace(TScriptInterface<IHideCompatible>& OutHidingPlace) const
+{
+	float BestDistSquared = FLT_MAX;
+	bool bHidingPlaceFound = false;
+
+	FVector CharacterLocation = GetActorLocation();
+
+	for (TScriptInterface<IHideCompatible>& HidingPlace : HidingPlaceUtils::GetHidingPlaces())
+	{
+		if (HidingPlace != nullptr && HidingPlace->IsWithinRange(CharacterLocation, MaxInteractionDistance))
+		{
+			FTransform HidingPlaceTransform;
+			HidingPlace->GetHidingPlaceTransform(CharacterLocation, HidingPlaceTransform);
+			
+			float DistSq = FVector::DistSquared(CharacterLocation, HidingPlaceTransform.GetLocation());
+			if (DistSq < BestDistSquared)
+			{
+				BestDistSquared = DistSq;
+				OutHidingPlace = HidingPlace;
+				bHidingPlaceFound = true;
+			}
+		}
+	}
+
+	return bHidingPlaceFound;
+}
+
+
+void AEscapeeCharacter::OnHidingPlaceReady()
+{
+	if (CurrentHidingPlace != nullptr)
+	{
+		// Clean up the delegate
+		if (HidingPlaceReadyHandle.IsValid())
+		{
+			CurrentHidingPlace->GetOnHidingPlaceReadyEvent()->Remove(HidingPlaceReadyHandle);
+			HidingPlaceReadyHandle.Reset();
+		}
+
+		// Now hide
+		FTransform HidingPlaceTransform;
+		if (CurrentHidingPlace->GetHidingPlaceTransform(GetActorLocation(), HidingPlaceTransform))
+		{
+			FVector Location = HidingPlaceTransform.GetLocation();
+			Location.Z = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			HidingPlaceTransform.SetLocation(Location);
+			SetActorTransform(HidingPlaceTransform);
+		}
+	}
 }

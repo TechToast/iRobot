@@ -7,6 +7,7 @@
 #include "iRobot.h"
 #include "DrawDebugHelpers.h"
 #include "Interfaces/IInteraction.h"
+#include "Entities/HidingPlace/HidingPlaceData.h"
 
 
 ADummyRobotGroup::ADummyRobotGroup()
@@ -211,11 +212,40 @@ void ADummyRobotGroup::CreateCellToInstanceMapping()
 }
 
 
-bool ADummyRobotGroup::FindClosestInstance(FVector InLocation, int32& OutInstanceId, FGridCell2D& OutGridCell, FTransform& OutInstanceTransform)
+FGridCell2D ADummyRobotGroup::FindClosestCell(const FVector InLocation) const
 {
 	FVector InverseLocation = GetActorTransform().InverseTransformPosition(InLocation);
-	FGridCell2D Cell(FMath::RoundToInt(InverseLocation.X / Spacing.X), FMath::RoundToInt(InverseLocation.Y / Spacing.Y));
+	InverseLocation.X = FMath::Max(0.f, InverseLocation.X);
+	InverseLocation.Y = FMath::Max(0.f, InverseLocation.Y);
+	return FGridCell2D(FMath::RoundToInt(InverseLocation.X / Spacing.X), FMath::RoundToInt(InverseLocation.Y / Spacing.Y));
+}
 
+
+/*FGridCell2D ADummyRobotGroup::FindClosestUnoccupiedCell(const FVector InLocation) const
+{
+
+}
+
+
+bool ADummyRobotGroup::IsCellOccupied(const FGridCell2D& InCell) const
+{
+	if (GetLocalRole() != ROLE_Authority)
+	{
+		checkNoEntry();
+		return false;
+	}
+
+	int32 CellIndex = (InCell.Column * NumRows) + InCell.Row;
+	if (CellIndex < GridCells.Items.Num())
+		return GridCells.Items[CellIndex].bOccupied;
+
+	return false;
+}*/
+
+
+bool ADummyRobotGroup::FindClosestInstance(const FVector InLocation, int32& OutInstanceId, FGridCell2D& OutGridCell, FTransform& OutInstanceTransform) const
+{
+	FGridCell2D Cell = FindClosestCell(InLocation);
 	if (CellToInstanceMapping.Contains(Cell))
 	{
 		OutGridCell = Cell;
@@ -228,7 +258,7 @@ bool ADummyRobotGroup::FindClosestInstance(FVector InLocation, int32& OutInstanc
 }
 
 
-bool ADummyRobotGroup::FindInstancesInRange(FVector InLocation, float InRadius, TArray<FGridCell2D>& AffectedCells)
+bool ADummyRobotGroup::FindInstancesInRange(const FVector InLocation, float InRadius, TArray<FGridCell2D>& AffectedCells) const
 {
 	AffectedCells.Empty();
 
@@ -246,7 +276,7 @@ bool ADummyRobotGroup::FindInstancesInRange(FVector InLocation, float InRadius, 
 	int32 MaxColumn = FMath::Clamp(CellColumn + ExtendY, 0, NumColumns - 1);
 
 	float DistSquareThreshold = InRadius * InRadius;
-	InLocation = GetActorTransform().Inverse().TransformPosition(InLocation);
+	FVector ObjectSpaceLocation = GetActorTransform().Inverse().TransformPosition(InLocation);
 
 	for (int32 RowIndex = MinRow; RowIndex <= MaxRow; RowIndex++)
 	{
@@ -257,7 +287,7 @@ bool ADummyRobotGroup::FindInstancesInRange(FVector InLocation, float InRadius, 
 			if (CellToInstanceMapping.Contains(AffectedCell))
 			{
 				FTransform InstanceTransform(CellTransforms[AffectedCell]);
-				FVector Diff = InstanceTransform.GetLocation() - InLocation;
+				FVector Diff = InstanceTransform.GetLocation() - ObjectSpaceLocation;
 				if (Diff.SizeSquared() < DistSquareThreshold)
 					AffectedCells.Add(AffectedCell);
 			}
@@ -310,7 +340,7 @@ void ADummyRobotGroup::OnGridCellChange(const struct FGridCell2D& ChangedGridCel
 }*/
 
 
-void ADummyRobotGroup::OnInteraction(IInteractor* InInstigator, FHitResult& InteractionHit)
+/*void ADummyRobotGroup::OnInteraction(IInteractor* InInstigator, FHitResult& InteractionHit)
 {
 	// Only allow interaction on server
 	if (GetLocalRole() != ROLE_Authority)
@@ -336,4 +366,75 @@ void ADummyRobotGroup::OnInteraction(IInteractor* InInstigator, FHitResult& Inte
 			}
 		}
 	}
+}*/
+
+
+bool ADummyRobotGroup::IsWithinRange(FVector InLocation, float InTolerance)
+{
+	FVector InverseLocation = GetActorTransform().InverseTransformPosition(InLocation);
+	if (InverseLocation.X > -InTolerance
+		&& InverseLocation.Y > -InTolerance
+		&& InverseLocation.X < ((NumRows * Spacing.X) + InTolerance)
+		&& InverseLocation.Y < ((NumColumns * Spacing.Y) + InTolerance))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+
+bool ADummyRobotGroup::GetHidingPlaceTransform(FVector InLocation, FTransform& OutTransform)
+{
+	FGridCell2D Cell = FindClosestCell(InLocation);
+
+	OutTransform.SetLocation(FVector(Cell.Row * Spacing.X, Cell.Column * Spacing.Y, 0.f));
+	OutTransform = OutTransform * GetActorTransform();
+
+	FQuat Rot = OutTransform.GetRotation();
+	Rot = DummyRobotLocalRotation.Quaternion() * Rot;
+	OutTransform.SetRotation(Rot);
+
+	return true;
+}
+
+
+void ADummyRobotGroup::PrepareHidingPlace(FVector InLocation)
+{
+	if (GetLocalRole() != ROLE_Authority)
+		return;
+
+	FTransform InstanceTransform;
+	int32 InstanceId;
+	FGridCell2D Cell;
+	if (FindClosestInstance(InLocation, InstanceId, Cell, InstanceTransform))
+	{
+		// Rely on the fact that the array order is correct on server
+		int32 CellIndex = (Cell.Column * NumRows) + Cell.Row;
+		if (CellIndex < GridCells.Items.Num())
+		{
+			GridCells.Items[CellIndex].bOccupied = false;
+			GridCells.Items[CellIndex].ChangeReason = EGridCellChangedReason::Dissolved;
+			GridCells.MarkItemDirty(GridCells.Items[CellIndex]);
+
+			// Manually trigger the callback on server
+			OnGridCellChange(GridCells.Items[CellIndex]);
+
+			// TODO: Get the dissolve duration from a shared datasource somewhere...
+			GetWorld()->GetTimerManager().SetTimer(OnHidingPlaceReadyTimer, this, &ADummyRobotGroup::HidingPlaceReadyPostDelay, 1.f);
+			return;
+		}
+	}
+
+	// If the hiding place is already prepared, just trigger the delegate immediately
+	HidingPlaceReadyPostDelay();
+	return;
+}
+
+
+void ADummyRobotGroup::HidingPlaceReadyPostDelay()
+{
+	if (OnHidingPlaceReady.IsBound())
+		OnHidingPlaceReady.Broadcast();
 }

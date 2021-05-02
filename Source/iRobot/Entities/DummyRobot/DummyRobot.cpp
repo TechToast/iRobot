@@ -29,8 +29,6 @@ void ADummyRobot::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(RemovalHandle, this, &ADummyRobot::RemoveAfterDelay, TimeBeforeRemoval);
-
 	// Hook up delegates for taking damage
 	PointDelegate.BindUFunction(this, FName(TEXT("OnPointDamageReceived")));
 	OnTakePointDamage.Add(PointDelegate);
@@ -46,6 +44,11 @@ void ADummyRobot::BeginPlay()
 			Materials.Add(DynamicMesh->CreateDynamicMaterialInstance(Index));
 		}
 	}
+
+	if (!TimeBeforeRemovalRange.IsZero())
+		GetWorld()->GetTimerManager().SetTimer(RemovalHandle, this, &ADummyRobot::RemoveAfterDelay, FMath::RandRange(TimeBeforeRemovalRange.X, TimeBeforeRemovalRange.Y));
+	else
+		RemoveAfterDelay();
 }
 
 
@@ -132,6 +135,7 @@ void ADummyRobot::RemoveAfterDelay()
 	// On clients we need to dissolve it
 	else
 	{
+		DynamicMesh->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 		ElapsedDissolveTime = 0;
 		SetActorTickEnabled(true);
 	}

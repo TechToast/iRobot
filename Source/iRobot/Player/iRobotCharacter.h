@@ -18,6 +18,8 @@ public:
 	AiRobotCharacter();
 
 	float GetHealth() const { return Health; }
+	
+	virtual FTransform GetCameraTransform() const;
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -41,8 +43,8 @@ protected:
 	float BaseLookUpRate;
 
 	/// How far from the character objects can be interacted with
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	float MaxInteractionDistance = 100.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
+	float MaxInteractionDistance = 300.f;
 
 	/// Animation played on death
 	//UPROPERTY(EditDefaultsOnly, Category = Animation)

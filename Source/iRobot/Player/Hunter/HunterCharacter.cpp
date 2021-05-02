@@ -63,12 +63,20 @@ void AHunterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 	if (PlayerInputComponent)
 	{
-		PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHunterCharacter::OnFireButtonHeld);
-		PlayerInputComponent->BindAction("Fire", IE_Released, this, &AHunterCharacter::OnFireButtonReleased);
+		PlayerInputComponent->BindAction("[HUNTER]Fire", IE_Pressed, this, &AHunterCharacter::OnFireButtonHeld);
+		PlayerInputComponent->BindAction("[HUNTER]Fire", IE_Released, this, &AHunterCharacter::OnFireButtonReleased);
+
+		PlayerInputComponent->BindAction("[HUNTER]Interact", IE_Pressed, this, &AHunterCharacter::OnInteractButtonPressed);
 
 		PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, this, &AHunterCharacter::OnNextWeapon);
 		PlayerInputComponent->BindAction("PrevWeapon", IE_Pressed, this, &AHunterCharacter::OnPrevWeapon);
 	}
+}
+
+
+FTransform AHunterCharacter::GetCameraTransform() const
+{
+	return FPCameraComponent->GetComponentTransform();
 }
 
 

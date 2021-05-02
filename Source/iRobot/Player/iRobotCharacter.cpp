@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/CollisionProfile.h"
 #include "iRobotPlayerController.h"
+#include "DrawDebugHelpers.h"
 
 
 AiRobotCharacter::AiRobotCharacter()
@@ -58,9 +59,7 @@ void AiRobotCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	{
 		PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 		PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-
-		PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AiRobotCharacter::OnInteractButtonPressed);
-
+		
 		PlayerInputComponent->BindAxis("MoveForward", this, &AiRobotCharacter::MoveForward);
 		PlayerInputComponent->BindAxis("MoveRight", this, &AiRobotCharacter::MoveRight);
 
@@ -72,6 +71,12 @@ void AiRobotCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 		PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 		PlayerInputComponent->BindAxis("LookUpRate", this, &AiRobotCharacter::LookUpAtRate);
 	}
+}
+
+
+FTransform AiRobotCharacter::GetCameraTransform() const
+{
+	return GetCapsuleComponent()->GetComponentTransform();
 }
 
 
@@ -416,15 +421,20 @@ void AiRobotCharacter::OnInteractButtonPressed()
 
 void AiRobotCharacter::Interact()
 {
+	FVector StartTrace = GetCameraTransform().GetLocation();
+	FVector EndTrace = (GetCameraTransform().GetUnitAxis(EAxis::X) * MaxInteractionDistance) + StartTrace;
+
 	// Interaction is done on the server
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		SERVER_StartInteraction();
+
+#if WITH_EDITOR
+		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 5.f);
+#endif
+
 		return;
 	}
-
-	FVector StartTrace = GetCapsuleComponent()->GetComponentLocation();
-	FVector EndTrace = (GetActorForwardVector() * MaxInteractionDistance) + StartTrace;
 
 	FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(InteractionTrace), true, this);
 

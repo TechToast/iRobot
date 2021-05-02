@@ -4,6 +4,7 @@
 #include "Player/iRobotPlayerController.h"
 #include "Player/iRobotCharacter.h"
 //#include "UObject/ConstructorHelpers.h"
+#include "Entities/HidingPlace/HidingPlaceUtils.h"
 
 AHunterGameMode::AHunterGameMode()
 	: Super()
@@ -20,6 +21,8 @@ AHunterGameMode::AHunterGameMode()
 void AHunterGameMode::StartPlay()
 {
 	Super::StartPlay();
+
+	HidingPlaceUtils::InitialiseHidingPlaces(GetWorld());
 }
 
 
