@@ -132,6 +132,24 @@ struct FProjectileData
 };
 
 
+USTRUCT()
+struct FProximityWeaponData
+{
+	GENERATED_USTRUCT_BODY()
+
+	/// Frequency of proximity pulses
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float PulseFrequency = 1.f;
+
+	/// Pulse Radius
+	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
+	float PulseRadius = 300.f;
+
+	/// Type of damage
+	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
+	TSubclassOf<UDamageType> DamageType = UDamageType::StaticClass();
+};
+
 
 USTRUCT()
 struct FWeaponAnim

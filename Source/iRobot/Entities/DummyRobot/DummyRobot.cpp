@@ -10,7 +10,7 @@ ADummyRobot::ADummyRobot()
 	PrimaryActorTick.bStartWithTickEnabled = false;
 	
 	// This actor is client only
-	SetReplicates(false);
+	bReplicates = false;
 
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	RootComponent = Scene;

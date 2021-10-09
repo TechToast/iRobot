@@ -7,7 +7,7 @@
 AImpactEffect::AImpactEffect(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	SetAutoDestroyWhenFinished(true);
-	SetReplicates(false);
+	bReplicates = false;
 
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;

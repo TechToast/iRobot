@@ -11,7 +11,8 @@
 #include "DrawDebugHelpers.h"
 
 
-AiRobotCharacter::AiRobotCharacter()
+AiRobotCharacter::AiRobotCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;

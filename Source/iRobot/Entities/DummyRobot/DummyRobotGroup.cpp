@@ -13,7 +13,7 @@
 ADummyRobotGroup::ADummyRobotGroup()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	SetReplicates(true);
+	bReplicates = true;
 
 	InstancedMesh = CreateDefaultSubobject<UHierarchicalInstancedStaticMeshComponent>(TEXT("InstancedMesh"));
 	InstancedMesh->SetMobility(EComponentMobility::Movable);
@@ -47,7 +47,7 @@ void ADummyRobotGroup::OnConstruction(const FTransform& Transform)
 			{
 				for (int32 Row = 0; Row < NumRows; ++Row)
 				{
-					FTransform Trans = GetActorTransform();
+					FTransform Trans = FTransform::Identity;// = GetActorTransform();
 					Trans.SetLocation(FVector(Spacing.X * Row, Spacing.Y * Column, 0.f));
 					InstancedMesh->AddInstance(Trans);
 				}
@@ -153,14 +153,44 @@ float ADummyRobotGroup::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 
 void ADummyRobotGroup::RemoveInstance(int32 InstanceId)
 {
-	InstancedMesh->RemoveInstance(InstanceId);
-	CreateCellToInstanceMapping();
+	if (InstancedMesh)
+	{
+		if (bRestoreDummyRobots)
+		{
+			FTransform InstanceTransform;
+			InstancedMesh->GetInstanceTransform(InstanceId, InstanceTransform);
+			QueueRestoredRobot(InstanceTransform);
+		}
+
+		InstancedMesh->RemoveInstance(InstanceId);
+		CreateCellToInstanceMapping();
+	}
 }
 
 
-void ADummyRobotGroup::RemoveInstances(TArray<int32> InstanceIds)
+/*void ADummyRobotGroup::RemoveInstances(TArray<int32> InstanceIds)
 {
 	InstancedMesh->RemoveInstances(InstanceIds);
+	CreateCellToInstanceMapping();
+}*/
+
+
+void ADummyRobotGroup::QueueRestoredRobot(FTransform InTransform)
+{
+	// TODO: This need to be replaced with a proper manager to handle batches of 
+	// robots to be restored
+
+	// For now its a bit of a hack
+	FTimerDelegate TimerDel;
+	FTimerHandle Handle;
+	TimerDel.BindUFunction(this, FName("RestoreInstance"), InTransform);
+	GetWorldTimerManager().SetTimer(Handle, TimerDel, TimeBeforeNewRobot, false);
+}
+
+
+void ADummyRobotGroup::RestoreInstance(FTransform Trans)
+{
+	InstancedMesh->AddInstance(Trans);
 	CreateCellToInstanceMapping();
 }
 
@@ -422,7 +452,7 @@ void ADummyRobotGroup::PrepareHidingPlace(FVector InLocation)
 			OnGridCellChange(GridCells.Items[CellIndex]);
 
 			// TODO: Get the dissolve duration from a shared datasource somewhere...
-			GetWorld()->GetTimerManager().SetTimer(OnHidingPlaceReadyTimer, this, &ADummyRobotGroup::HidingPlaceReadyPostDelay, 1.f);
+			GetWorld()->GetTimerManager().SetTimer(OnHidingPlaceReadyTimer, this, &ADummyRobotGroup::HidingPlaceReadyPostDelay, 0.25f);
 			return;
 		}
 	}

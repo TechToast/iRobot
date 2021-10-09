@@ -14,7 +14,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogHunterChar, Warning, All);
 //////////////////////////////////////////////////////////////////////////
 // AHunterCharacter
 
-AHunterCharacter::AHunterCharacter()
+AHunterCharacter::AHunterCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Create a CameraComponent	
 	FPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));

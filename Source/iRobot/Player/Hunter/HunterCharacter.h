@@ -22,7 +22,7 @@ class IROBOT_API AHunterCharacter : public AiRobotCharacter
 	GENERATED_BODY()
 
 public:
-	AHunterCharacter();
+	AHunterCharacter(const FObjectInitializer& ObjectInitializer);
 
 	/// Public Getters
 	FORCEINLINE USkeletalMeshComponent* GetFPMesh() const		{ return FPMesh; }

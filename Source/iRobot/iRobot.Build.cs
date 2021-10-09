@@ -13,8 +13,12 @@ public class iRobot : ModuleRules
 				"Core", 
 				"CoreUObject", 
 				"Engine", 
-				"InputCore", 
-				"HeadMountedDisplay" 
+				"InputCore",
+				"OnlineSubsystem",
+				"OnlineSubsystemUtils",
+				"OnlineSubsystemSteam",
+				"PhysicsCore",
+				"UMG"
 			}
 		);
 

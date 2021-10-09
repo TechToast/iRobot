@@ -2,7 +2,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "EscapeeCharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/iRobotPlayerController.h"
@@ -10,12 +10,14 @@
 #include "Net/UnrealNetwork.h"
 #include "Entities/HidingPlace/HidingPlaceUtils.h"
 #include "Entities/HidingPlace/IHideCompatible.h"
+#include "EscapeeCharacterMovementComponent.h"
 
 
 //////////////////////////////////////////////////////////////////////////
 // AEscapeeCharacter
 
-AEscapeeCharacter::AEscapeeCharacter()
+AEscapeeCharacter::AEscapeeCharacter(const FObjectInitializer& ObjectInitializer) 
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UEscapeeCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -51,14 +53,29 @@ AEscapeeCharacter::AEscapeeCharacter()
 void AEscapeeCharacter::Tick(float Delta)
 {
 	Super::Tick(Delta);
-	/*
-	UE_LOG(LogTemp, Log, TEXT("Location = %f, %f, %f"), 
+	
+	/*UE_LOG(LogTemp, Log, TEXT("Location = %f, %f, %f"), 
 		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).X, 
 		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).Y,
 		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).Z);
 	UE_LOG(LogTemp, Log, TEXT("Rotation = %f, %f, %f"), 
 		CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Pitch, CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Yaw, CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Roll);
 	*/
+	/*if (GetLocalRole() == ROLE_Authority)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Server Rotation = %f, %f, %f"),
+			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Pitch,
+			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Yaw,
+			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Roll);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Client Rotation = %f, %f, %f"),
+			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Pitch,
+			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Yaw,
+			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Roll);
+	}*/
+
 }
 
 
@@ -67,6 +84,7 @@ void AEscapeeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(AEscapeeCharacter, HideState, COND_None);
+	DOREPLIFETIME_CONDITION(AEscapeeCharacter, CurrentHidingPlaceTransform, COND_OwnerOnly);
 }
 
 
@@ -79,6 +97,8 @@ void AEscapeeCharacter::BeginPlay()
 		AnimInstance = Cast<UEscapeeAnimInstance>(GetMesh()->GetAnimInstance());
 		ensureMsgf(AnimInstance.IsValid(), TEXT("AEscapeeCharacter::BeginPlay() - Anim instance doesn't inherit from UEscapeeAnimInstance."));
 	}
+
+	EscapeeCharMove = Cast<UEscapeeCharacterMovementComponent>(GetMovementComponent());
 }
 
 
@@ -91,8 +111,9 @@ void AEscapeeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	{
 		PlayerInputComponent->BindAction("[ESCAPEE]Interact", IE_Pressed, this, &AEscapeeCharacter::OnInteractButtonPressed);
 
-		PlayerInputComponent->BindAction("Hide", IE_Pressed, this, &AEscapeeCharacter::OnHideButtonHeld);
-		PlayerInputComponent->BindAction("Hide", IE_Released, this, &AEscapeeCharacter::OnHideButtonReleased);
+		//PlayerInputComponent->BindAction("Hide", IE_Pressed, this, &AEscapeeCharacter::OnHideButtonHeld);
+		//PlayerInputComponent->BindAction("Hide", IE_Released, this, &AEscapeeCharacter::OnHideButtonReleased);
+		PlayerInputComponent->BindAction("Hide", IE_Released, this, &AEscapeeCharacter::OnHideButtonPressed);
 	}
 }
 
@@ -148,7 +169,7 @@ void AEscapeeCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& 
 }
 
 
-void AEscapeeCharacter::OnHideButtonHeld()
+/*void AEscapeeCharacter::OnHideButtonHeld()
 {
 	AiRobotPlayerController* PC = Cast<AiRobotPlayerController>(Controller);
 	if (PC && PC->IsGameInputAllowed())
@@ -164,6 +185,25 @@ void AEscapeeCharacter::OnHideButtonReleased()
 	if (PC && PC->IsGameInputAllowed())
 	{
 		UnHide();
+	}
+}*/
+
+
+void AEscapeeCharacter::OnHideButtonPressed()
+{
+	AiRobotPlayerController* PC = Cast<AiRobotPlayerController>(Controller);
+	if (PC && PC->IsGameInputAllowed())
+	{
+		if (bWantsToHide)
+		{
+			bWantsToHide = false;
+			UnHide();
+		}
+		else
+		{
+			bWantsToHide = true;
+			Hide();
+		}
 	}
 }
 
@@ -199,6 +239,11 @@ void AEscapeeCharacter::UnHide()
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		SERVER_UnHide();
+		
+		// Disable the rotation override on the movement component
+		if (GetLocalRole() == ROLE_AutonomousProxy && EscapeeCharMove.IsValid())
+			EscapeeCharMove->SetUseHidingPlaceRotation(false);
+
 		return;
 	}
 
@@ -290,7 +335,25 @@ void AEscapeeCharacter::OnHidingPlaceReady()
 			FVector Location = HidingPlaceTransform.GetLocation();
 			Location.Z = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 			HidingPlaceTransform.SetLocation(Location);
-			SetActorTransform(HidingPlaceTransform);
+			
+			CurrentHidingPlaceTransform.Transform = HidingPlaceTransform;
+			CurrentHidingPlaceTransform.TimeStamp = GetWorld()->GetTimeSeconds();
+			
+			OnRep_CurrentHidingPlaceTransform();
 		}
+	}
+}
+
+
+void AEscapeeCharacter::OnRep_CurrentHidingPlaceTransform()
+{
+	TeleportTo(CurrentHidingPlaceTransform.Transform.GetLocation(), CurrentHidingPlaceTransform.Transform.Rotator(), false, true);
+
+	// This is our hacky-fix to get around the CharacterMovementComponent's client prediction which usually 
+	// overrides the rotation of the character on the autonomous client
+	if (GetLocalRole() == ROLE_AutonomousProxy && EscapeeCharMove.IsValid())
+	{
+		EscapeeCharMove->SetHidingPlaceRotation(CurrentHidingPlaceTransform.Transform.GetRotation());
+		EscapeeCharMove->SetUseHidingPlaceRotation(true);
 	}
 }

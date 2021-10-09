@@ -15,7 +15,7 @@ class IROBOT_API AiRobotCharacter : public ACharacter, public IInteractor
 	GENERATED_BODY()
 
 public:
-	AiRobotCharacter();
+	AiRobotCharacter(const FObjectInitializer& ObjectInitializer);
 
 	float GetHealth() const { return Health; }
 	

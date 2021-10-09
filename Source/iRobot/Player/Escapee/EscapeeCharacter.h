@@ -7,14 +7,16 @@
 
 class AHidingPlace;
 class IHideCompatible;
+class UEscapeeCharacterMovementComponent;
+
 
 UCLASS()
-class AEscapeeCharacter : public AiRobotCharacter
+class IROBOT_API AEscapeeCharacter : public AiRobotCharacter
 {
 	GENERATED_BODY()
 
 public:
-	AEscapeeCharacter();
+	AEscapeeCharacter(const FObjectInitializer& ObjectInitializer);
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const	{ return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const		{ return FollowCamera; }
@@ -31,8 +33,9 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 	// Input callbacks
-	void OnHideButtonHeld();
-	void OnHideButtonReleased();
+	//void OnHideButtonHeld();
+	//void OnHideButtonReleased();
+	void OnHideButtonPressed();
 
 	/// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -74,6 +77,14 @@ private:
 	void OnRep_HideState();
 
 	bool bWantsToHide = false;
+
+	TWeakObjectPtr<UEscapeeCharacterMovementComponent> EscapeeCharMove;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHidingPlaceTransform)
+	FHidingPlaceTransform CurrentHidingPlaceTransform;
+
+	UFUNCTION()
+	void OnRep_CurrentHidingPlaceTransform();
 
 	TScriptInterface<IHideCompatible> CurrentHidingPlace;
 

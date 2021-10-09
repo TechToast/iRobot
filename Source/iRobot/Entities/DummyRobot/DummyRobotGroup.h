@@ -51,6 +51,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Mesh")
 	float TimeBeforeRemoval = 10.f;
 
+	/// Should robots be restored after being damaged
+	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Mesh")
+	bool bRestoreDummyRobots = true;
+
+	/// How long to wait after being shot before creating a replacement robot
+	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Mesh", meta=(EditCondition="bRestoreDummyRobots"))
+	float TimeBeforeNewRobot = 25.f;
+
 	/// Name of the collision profile to use once the dummy robot is turned to debris
 	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Mesh")
 	FName DebrisProfileName = TEXT("Debris");
@@ -101,7 +109,13 @@ private:
 
 	/// Remove the instance/instances from the instanced mesh
 	void RemoveInstance(int32 InstanceId);
-	void RemoveInstances(TArray<int32> InstanceIds);
+	//void RemoveInstances(TArray<int32> InstanceIds);
+
+	/// Add the given transform to a queue to be restored after a delay
+	void QueueRestoredRobot(FTransform InTransform);
+
+	UFUNCTION()
+	void RestoreInstance(FTransform Trans);
 
 	/// Create a mapping table of cells to instances
 	void CreateCellToInstanceMapping();

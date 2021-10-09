@@ -4,13 +4,14 @@
 #include "GameFramework/Actor.h"
 //#include "Engine/Canvas.h" // for FCanvasIcon
 #include "WeaponData.h"
+#include "Camera/CameraShakeBase.h"
 #include "Weapon.generated.h"
 
 class UAnimMontage;
 class AHunterCharacter;
 class UAudioComponent;
 class UParticleSystemComponent;
-class UCameraShake;
+class UCameraShakeBase;
 //class UForceFeedbackEffect;
 class USoundCue;
 
@@ -52,9 +53,9 @@ public:
 	void OnLeaveInventory();
 
 	/// Equip/un-equip this weapon
-	void OnEquip();
-	void OnEquipFinished();
-	void OnUnEquip();
+	virtual void OnEquip();
+	virtual void OnEquipFinished();
+	virtual void OnUnEquip();
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -78,7 +79,7 @@ protected:
 
 	/// Camera shake on firing
 	UPROPERTY(EditDefaultsOnly, Category= "Weapon|Effects")
-	TSubclassOf<UCameraShake> FireCameraShake;
+	TSubclassOf<UCameraShakeBase> FireCameraShake;
 
 	/// Force feedback effect to play when the weapon is fired
 	//UPROPERTY(EditDefaultsOnly, Category=Effects)
