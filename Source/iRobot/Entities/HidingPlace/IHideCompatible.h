@@ -39,4 +39,13 @@ public:
 
 	/// Event delegate to listen for when the hiding place is ready
 	virtual FHidingPlaceReadyEvent* GetOnHidingPlaceReadyEvent() = 0;
+
+	/// Occupy the hiding place
+	virtual void OccupyHidingPlace(FVector InLocation) = 0;
+
+	/// Vacate the hiding place
+	virtual void VacateHidingPlace(FVector InLocation) = 0;
+
+	/// Is the hiding place occupied at the given location
+	virtual bool IsHidingPlaceOccupied(FVector InLocation) = 0;
 };

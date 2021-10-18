@@ -8,6 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Player/iRobotPlayerController.h"
 #include "Entities/Weapons/Weapon.h"
+#include "UI/iRobotHUD.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHunterChar, Warning, All);
 
@@ -174,7 +175,40 @@ void AHunterCharacter::SetCurrentWeapon(AWeapon* NewWeapon, AWeapon* LastWeapon)
 	{
 		// Ensure owning pawn is set in case replication hasn't happened yet
 		CurrentWeapon->SetOwningPawn(this);
+
+		// Listen for equipping finished event
+		OnWeaponEquipFinishedHandle = CurrentWeapon->GetOnWeaponEquipFinished()->AddUObject(this, &AHunterCharacter::OnWeaponEquipFinished);
+
+		// Equip it
 		CurrentWeapon->OnEquip();
+	}
+}
+
+
+void AHunterCharacter::OnWeaponEquipFinished()
+{
+	if (CurrentWeapon)
+	{
+		if (!HUD.IsValid())
+		{
+			if (Controller)
+			{
+				AiRobotPlayerController* PlayerController = Cast<AiRobotPlayerController>(Controller);
+				if (PlayerController)
+					HUD = Cast<AiRobotHUD>(PlayerController->GetHUD());
+			}
+		}
+
+		if (HUD.IsValid())
+		{
+			HUD->SetCrosshairTexture(CurrentWeapon->GetCrosshairTexture());
+		}
+
+		if (OnWeaponEquipFinishedHandle.IsValid())
+		{
+			CurrentWeapon->GetOnWeaponEquipFinished()->Remove(OnWeaponEquipFinishedHandle);
+			OnWeaponEquipFinishedHandle.Reset();
+		}
 	}
 }
 

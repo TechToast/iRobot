@@ -33,6 +33,7 @@
 
 # Directories
 .vs/
+.mayaSwatches/
 Binaries/
 DerivedDataCache/
 Intermediate/

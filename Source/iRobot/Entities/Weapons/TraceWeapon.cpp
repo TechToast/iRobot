@@ -47,7 +47,7 @@ void ATraceWeapon::FireWeapon()
 void ATraceWeapon::ProcessTraceHit(const FHitResult& Impact, const FVector& Origin, const FVector& ShootDir, int32 RandomSeed, float ReticleSpread)
 {
 	// Client
-	if (GetOwningPawn() && GetOwningPawn()->IsLocallyControlled() && GetNetMode() == NM_Client)
+	if (GetOwningPawn().IsValid() && GetOwningPawn()->IsLocallyControlled() && GetNetMode() == NM_Client)
 	{
 		// if we're a client and we've hit something that is being controlled by the server
 		if (Impact.GetActor() && Impact.GetActor()->GetRemoteRole() == ROLE_Authority)

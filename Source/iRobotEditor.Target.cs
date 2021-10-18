@@ -9,6 +9,12 @@ public class iRobotEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.Add("iRobot");
+		ExtraModuleNames.AddRange(
+			new string[]
+			{
+				"iRobot",
+				"iRobotEditor"
+			}
+		);
 	}
 }

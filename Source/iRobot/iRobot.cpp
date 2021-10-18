@@ -7,3 +7,4 @@ IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, iRobot, "iRobot" );
 
 DEFINE_LOG_CATEGORY(LogiRobot)
 DEFINE_LOG_CATEGORY(LogiRobotWeapon)
+DEFINE_LOG_CATEGORY(LogGameConfiguration)

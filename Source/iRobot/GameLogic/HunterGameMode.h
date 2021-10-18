@@ -15,6 +15,8 @@ public:
 	AHunterGameMode();
 
 	virtual void StartPlay() override;
+	virtual void StartMatch() override;
+	//virtual bool ReadyToStartMatch_Implementation() override;
 	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void HandleMatchIsWaitingToStart() override;

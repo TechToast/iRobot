@@ -14,6 +14,7 @@ class UCameraComponent;
 class AWeapon;
 class UAnimMontage;
 class USoundBase;
+class AiRobotHUD;
 
 
 UCLASS(config=Game)
@@ -36,7 +37,7 @@ public:
 	bool CanFire() const;
 
 	/// Get the aim offsets for animation blueprint
-	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
+	UFUNCTION(BlueprintCallable, Category = "HunterCharacter|Weapon")
 	FRotator GetAimOffsets() const;
 
 	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None) override;
@@ -65,14 +66,14 @@ protected:
 	void SERVER_EquipWeapon(AWeapon* NewWeapon);
 
 	/// socket or bone name for attaching weapon mesh
-	UPROPERTY(EditDefaultsOnly, Category = "Hunter")
+	UPROPERTY(EditDefaultsOnly, Category = "HunterCharacter|Weapon")
 	FName WeaponAttachPoint;
 
 	/// Default inventory list
-	UPROPERTY(EditDefaultsOnly, Category = "Hunter")
+	UPROPERTY(EditDefaultsOnly, Category = "HunterCharacter|Inventory")
 	TArray<TSoftClassPtr<AWeapon>> DefaultInventoryClasses;
 
-	/// weapons in inventory
+	/// Weapons in inventory
 	UPROPERTY(Transient, Replicated)
 	TArray<AWeapon*> Inventory;
 
@@ -103,5 +104,11 @@ private:
 	void OnRep_CurrentWeapon(AWeapon* LastWeapon);
 
 	bool bWantsToFire = false;
+
+	/// Store a reference to the HUD
+	TWeakObjectPtr<AiRobotHUD> HUD;
+
+	void OnWeaponEquipFinished();
+	FDelegateHandle OnWeaponEquipFinishedHandle;
 };
 

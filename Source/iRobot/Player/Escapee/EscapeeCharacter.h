@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Player/iRobotCharacter.h"
 #include "Entities/HidingPlace/HidingPlaceData.h"
+#include "Interfaces/IScannable.h"
 #include "EscapeeCharacter.generated.h"
 
 class AHidingPlace;
@@ -11,7 +12,7 @@ class UEscapeeCharacterMovementComponent;
 
 
 UCLASS()
-class IROBOT_API AEscapeeCharacter : public AiRobotCharacter
+class IROBOT_API AEscapeeCharacter : public AiRobotCharacter, public IScannable
 {
 	GENERATED_BODY()
 
@@ -21,16 +22,21 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const	{ return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const		{ return FollowCamera; }
 
+	/// Start IScannable interface
+	virtual void OnScanned(int32 ScannedIndex);
+	virtual int32 GetScanIndex(const FVector& ScanHitLocation) { return 0; }
+	/// End IScannable interface
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void BeginPlay() override;
+	//virtual void Tick(float DeltaTime) override;
 	virtual FTransform GetCameraTransform() const override;
 	virtual void MoveForward(float Val) override;
 	virtual void MoveRight(float Val) override;
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	virtual void Tick(float DeltaTime) override;
+	virtual void Jump() override;
 
 	// Input callbacks
 	//void OnHideButtonHeld();
@@ -38,12 +44,28 @@ protected:
 	void OnHideButtonPressed();
 
 	/// Camera boom positioning the camera behind the character
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USpringArmComponent* CameraBoom;
 
 	/// Follow camera
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCameraComponent* FollowCamera;
+
+	/// How long before the scanned character is restored to its default state
+	UPROPERTY(EditDefaultsOnly, Category = "Escapee")
+	float TimerBeforeScanStateChange = 5.f;
+
+	/// The index of the material used by the scan state
+	UPROPERTY(EditDefaultsOnly, Category = "Escapee")
+	int32 ScannedStateMaterialIndex = 0;
+
+	/// The name of the material param used to enable/disable the scanned state
+	UPROPERTY(EditDefaultsOnly, Category = "Escapee")
+	FName ScannedStateParamName = TEXT("ScannedState");
+
+	/// Played when the character is scanned?
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundCue* ScannedSound;
 
 private:
 
@@ -52,6 +74,10 @@ private:
 
 	/// Callback triggered when the hiding place is ready
 	void OnHidingPlaceReady();
+
+	/// Callback when the scane state is restored to default
+	UFUNCTION()
+	void OnScanStateRestored();
 
 	/// Cause this escapee character to hide/unhide in place
 	void Hide();
@@ -89,5 +115,17 @@ private:
 	TScriptInterface<IHideCompatible> CurrentHidingPlace;
 
 	FDelegateHandle HidingPlaceReadyHandle;
+
+	void SetScannedState(bool bInState);
+
+	UPROPERTY(ReplicatedUsing=OnRep_bScanned)
+	bool bScanned = false;
+
+	UFUNCTION()
+	void OnRep_bScanned();
+
+	TWeakObjectPtr<UMaterialInstanceDynamic> ScannedStateMaterial;
+
+	FTimerHandle ScannedTimerHandle;
 };
 

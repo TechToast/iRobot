@@ -1,6 +1,5 @@
 #include "Weapon.h"
 #include "iRobot.h"
-#include "Player/Hunter/HunterCharacter.h"
 #include "Player/iRobotPlayerController.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -27,6 +26,7 @@ AWeapon::AWeapon(const FObjectInitializer& ObjectInitializer)
 	Mesh1P->SetOnlyOwnerSee(true);
 	Mesh1P->SetReceivesDecals(false);
 	Mesh1P->SetCastShadow(false);
+	Mesh1P->SetHiddenInGame(true);
 	Mesh1P->SetCollisionObjectType(ECC_WorldDynamic);
 	Mesh1P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh1P->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -37,6 +37,7 @@ AWeapon::AWeapon(const FObjectInitializer& ObjectInitializer)
 	Mesh3P->SetOwnerNoSee(true);
 	Mesh3P->SetReceivesDecals(false);
 	Mesh3P->SetCastShadow(true);
+	Mesh3P->SetHiddenInGame(true);
 	Mesh3P->SetCollisionObjectType(ECC_WorldDynamic);
 	Mesh3P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh3P->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -76,6 +77,24 @@ void AWeapon::PostInitializeComponents()
 }
 
 
+void AWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	/*if (Mesh1P)
+	{
+		AnimInstance1P = Cast<UWeaponAnimInstance>(Mesh1P->GetAnimInstance());
+		//ensureMsgf(AnimInstance1P.IsValid(), TEXT("AWeapon::BeginPlay() - Anim instance (1P) doesn't inherit from UWeaponAnimInstance."));
+	}
+
+	if (Mesh3P)
+	{
+		AnimInstance3P = Cast<UWeaponAnimInstance>(Mesh3P->GetAnimInstance());
+		//ensureMsgf(AnimInstance3P.IsValid(), TEXT("AWeapon::BeginPlay() - Anim instance (3P) doesn't inherit from UWeaponAnimInstance."));
+	}*/
+}
+
+
 void AWeapon::Destroyed()
 {
 	Super::Destroyed();
@@ -96,13 +115,18 @@ void AWeapon::StartFire()
 	{
 		bWantsToFire = true;
 		DetermineWeaponState();
+
+		/*if (AnimInstance1P.IsValid())
+			AnimInstance1P->bIsFiring = true;
+		if (AnimInstance3P.IsValid())
+			AnimInstance3P->bIsFiring = true;*/
 	}
 }
 
 
 void AWeapon::StopFire()
 {
-	if (GetLocalRole() < ROLE_Authority && OwningPawn && OwningPawn->IsLocallyControlled())
+	if (GetLocalRole() < ROLE_Authority && OwningPawn.IsValid() && OwningPawn->IsLocallyControlled())
 	{
 		SERVER_StopFire();
 	}
@@ -141,7 +165,7 @@ void AWeapon::SERVER_StopFire_Implementation()
 
 bool AWeapon::CanFire() const
 {
-	bool bCanFire = OwningPawn && OwningPawn->CanFire();
+	bool bCanFire = OwningPawn.IsValid() && OwningPawn->CanFire();
 	bool bStateOKToFire = ( ( CurrentState ==  EWeaponState::Idle ) || ( CurrentState == EWeaponState::Firing) );	
 	return (bCanFire  && bStateOKToFire /*&& bPendingReload*/);
 }
@@ -172,7 +196,7 @@ void AWeapon::HandleFiring()
 			SimulateWeaponFire();
 		}
 
-		if (OwningPawn && OwningPawn->IsLocallyControlled())
+		if (OwningPawn.IsValid() && OwningPawn->IsLocallyControlled())
 		{
 			FireWeapon();
 
@@ -180,7 +204,7 @@ void AWeapon::HandleFiring()
 			BurstCounter++;
 		}
 	}
-	else if (OwningPawn && OwningPawn->IsLocallyControlled())
+	else if (OwningPawn.IsValid() && OwningPawn->IsLocallyControlled())
 	{
 		// Stop weapon fire FX, but stay in Firing state
 		if (BurstCounter > 0)
@@ -193,7 +217,7 @@ void AWeapon::HandleFiring()
 		OnBurstFinished();
 	}
 
-	if (OwningPawn && OwningPawn->IsLocallyControlled())
+	if (OwningPawn.IsValid() && OwningPawn->IsLocallyControlled())
 	{
 		// Local client will notify server
 		if (GetLocalRole() < ROLE_Authority)
@@ -330,7 +354,7 @@ FVector AWeapon::GetCameraAim() const
 
 FVector AWeapon::GetCameraTraceStartLocation(const FVector& AimDir) const
 {
-	AiRobotPlayerController* PC = OwningPawn ? Cast<AiRobotPlayerController>(OwningPawn->Controller) : NULL;
+	AiRobotPlayerController* PC = OwningPawn.IsValid() ? Cast<AiRobotPlayerController>(OwningPawn->Controller) : NULL;
 	FVector OutStartTrace = FVector::ZeroVector;
 	if (PC)
 	{
@@ -373,9 +397,22 @@ FHitResult AWeapon::WeaponTrace(const FVector& StartTrace, const FVector& EndTra
 }
 
 
+FHitResult AWeapon::WeaponSweep(const FVector& StartTrace, const FVector& EndTrace, const FCollisionShape& Shape) const
+{
+	// Perform sweep to retrieve hit info
+	FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(WeaponTrace), true, GetInstigator());
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	FHitResult Hit(ForceInit);
+	GetWorld()->SweepSingleByChannel(Hit, StartTrace, EndTrace, FQuat::Identity, COLLISION_WEAPON, Shape, TraceParams);
+
+	return Hit;
+}
+
+
 void AWeapon::SetOwningPawn(AHunterCharacter* NewOwner)
 {
-	if (OwningPawn != NewOwner)
+	if (OwningPawn.Get() != NewOwner)
 	{
 		SetInstigator(NewOwner);
 		OwningPawn = NewOwner;
@@ -413,7 +450,7 @@ void AWeapon::OnRep_BurstCounter()
 
 USkeletalMeshComponent* AWeapon::GetWeaponMesh() const
 {
-	return (OwningPawn != NULL && OwningPawn->IsFirstPerson()) ? Mesh1P : Mesh3P;
+	return (OwningPawn.IsValid() != NULL && OwningPawn->IsFirstPerson()) ? Mesh1P : Mesh3P;
 }
 
 
@@ -433,7 +470,7 @@ void AWeapon::OnEquip()
 		OnEquipFinished();
 	}
 
-	if (OwningPawn && OwningPawn->IsLocallyControlled())
+	if (OwningPawn.IsValid() && OwningPawn->IsLocallyControlled())
 	{
 		PlayWeaponSound(EquipSound);
 	}
@@ -448,6 +485,8 @@ void AWeapon::OnEquipFinished()
 	bPendingEquip = false;
 
 	DetermineWeaponState();
+	
+	OnWeaponEquipFinished.Broadcast();
 }
 
 
@@ -488,7 +527,7 @@ void AWeapon::OnLeaveInventory()
 
 void AWeapon::AttachMeshToPawn()
 {
-	if (OwningPawn)
+	if (OwningPawn.IsValid())
 	{
 		// Remove and hide both first and third person meshes
 		DetachMeshFromPawn();
@@ -528,7 +567,7 @@ void AWeapon::DetachMeshFromPawn()
 UAudioComponent* AWeapon::PlayWeaponSound(USoundCue* Sound)
 {
 	UAudioComponent* AC = NULL;
-	if (Sound && OwningPawn)
+	if (Sound && OwningPawn.IsValid())
 	{
 		AC = UGameplayStatics::SpawnSoundAttached(Sound, OwningPawn->GetRootComponent());
 	}
@@ -540,13 +579,18 @@ UAudioComponent* AWeapon::PlayWeaponSound(USoundCue* Sound)
 float AWeapon::PlayWeaponAnimation(const FWeaponAnim& Animation)
 {
 	float Duration = 0.0f;
-	if (OwningPawn)
+	if (OwningPawn.IsValid())
 	{
 		UAnimMontage* UseAnim = OwningPawn->IsFirstPerson() ? Animation.Pawn1P : Animation.Pawn3P;
 		if (UseAnim)
 		{
 			Duration = OwningPawn->PlayAnimMontage(UseAnim);
 		}
+
+		/*if (AnimInstance1P.IsValid())
+			AnimInstance1P->bIsFiring = false;
+		if (AnimInstance3P.IsValid())
+			AnimInstance3P->bIsFiring = false;*/
 	}
 
 	return Duration;
@@ -555,7 +599,7 @@ float AWeapon::PlayWeaponAnimation(const FWeaponAnim& Animation)
 
 void AWeapon::StopWeaponAnimation(const FWeaponAnim& Animation)
 {
-	if (OwningPawn)
+	if (OwningPawn.IsValid())
 	{
 		UAnimMontage* UseAnim = OwningPawn->IsFirstPerson() ? Animation.Pawn1P : Animation.Pawn3P;
 		if (UseAnim)
@@ -620,7 +664,7 @@ void AWeapon::SimulateWeaponFire()
 		PlayWeaponSound(FireSound);
 	}
 
-	AiRobotPlayerController* PC = (OwningPawn != NULL) ? Cast<AiRobotPlayerController>(OwningPawn->Controller) : NULL;
+	AiRobotPlayerController* PC = OwningPawn.IsValid() ? Cast<AiRobotPlayerController>(OwningPawn->Controller) : NULL;
 	if (PC != NULL && PC->IsLocalController())
 	{
 		if (FireCameraShake != NULL)

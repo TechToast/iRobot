@@ -10,7 +10,8 @@ enum class EGridCellChangedReason : uint8
 {
 	Damaged,
 	Dissolved,
-	Respawned
+	Respawned,
+	ScanStateChanged
 };
 
 
@@ -25,14 +26,18 @@ public:
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY()
-	uint8 Row;
+	uint8 Row = 0;
 
 	UPROPERTY()
-	uint8 Column;
+	uint8 Column = 0;
 
 	/// Is this cell currently occupied
 	UPROPERTY()
-	bool bOccupied;
+	bool bOccupied = false;
+
+	/// Is the item in this cell currently in a scanned state
+	UPROPERTY()
+	bool bScanned = false;
 
 	/// The reason the cell was changed
 	UPROPERTY()
@@ -55,6 +60,7 @@ public:
 		: Row(OtherCell.Row)
 		, Column(OtherCell.Column)
 		, bOccupied(OtherCell.bOccupied)
+		, bScanned(OtherCell.bScanned)
 		, ChangeReason(OtherCell.ChangeReason)
 		, ImpactVelocity(OtherCell.ImpactVelocity)
 		, ImpactLocation(OtherCell.ImpactLocation)

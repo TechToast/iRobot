@@ -35,15 +35,15 @@ protected:
 	void OnInteractButtonPressed();
 
 	/// Base turn rate, in deg/sec. Other scaling may affect final turn rate.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "iRobotCharacter|Camera")
 	float BaseTurnRate;
 
 	/// Base look up/down rate, in deg/sec. Other scaling may affect final rate.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "iRobotCharacter|Camera")
 	float BaseLookUpRate;
 
 	/// How far from the character objects can be interacted with
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interaction")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "iRobotCharacter|Interaction")
 	float MaxInteractionDistance = 300.f;
 
 	/// Animation played on death
@@ -51,11 +51,11 @@ protected:
 	//UAnimMontage* DeathAnim;
 
 	/// Sound played on death, local player only
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	UPROPERTY(EditDefaultsOnly, Category = "iRobotCharacter|Sound")
 	USoundCue* DeathSound;
 
 	/// Default health value
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "iRobotCharacter")
 	float DefaultHealth = 100.f;
 
 	/// Spawns default inventory on server

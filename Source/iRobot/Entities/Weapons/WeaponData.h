@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Engine/EngineTypes.h"
 #include "WeaponData.generated.h"
 
 class UAnimMontage;
@@ -137,17 +138,33 @@ struct FProximityWeaponData
 {
 	GENERATED_USTRUCT_BODY()
 
-	/// Frequency of proximity pulses
+	/// Range of the actual scan weapon
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	float PulseFrequency = 1.f;
+	float WeaponRange = 100.f;
+
+	/// Radius of the scan weapon sweep
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float WeaponSweepRadius = 30.f;
+
+	/// Duration of each proximity pulse
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float PulseDuration = 0.5f;
+
+	/// Duration of the visible sweep during a proximity pulse ( Must always be less than or equal to PulseDuration)
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float PulseSweepDuration = 0.2f;
+
+	/// How long between proximity pulses
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	float TimeBetweenPulses = 2.f;
 
 	/// Pulse Radius
 	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
 	float PulseRadius = 300.f;
 
 	/// Type of damage
-	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
-	TSubclassOf<UDamageType> DamageType = UDamageType::StaticClass();
+	//UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
+	//TSubclassOf<UDamageType> DamageType = UDamageType::StaticClass();
 };
 
 
@@ -180,3 +197,36 @@ struct FInstantHitInfo
 	UPROPERTY()
 	int32 RandomSeed;
 };
+
+
+/*USTRUCT(BlueprintType)
+struct FScannerDamageEvent : public FDamageEvent
+{
+	GENERATED_BODY()
+
+	/// Describes the trace/location that caused this damage
+	UPROPERTY()
+	FHitResult HitInfo;
+
+	FScannerDamageEvent() {}
+	FScannerDamageEvent(FHitResult const& InHitInfo, TSubclassOf<UDamageType> InDamageTypeClass)
+		: FDamageEvent(InDamageTypeClass)
+		, HitInfo(InHitInfo)
+	{}
+
+	/// ID for this class. NOTE this must be unique for all damage events.
+	static const int32 ClassID = 16;
+
+	virtual int32 GetTypeID() const override 
+	{ 
+		return FScannerDamageEvent::ClassID; 
+	}
+
+	virtual bool IsOfType(int32 InID) const override 
+	{ 
+		return (FScannerDamageEvent::ClassID == InID) || FDamageEvent::IsOfType(InID); 
+	}
+
+	/// Not sure we need this
+	//virtual void GetBestHitInfo(AActor const* HitActor, AActor const* HitInstigator, struct FHitResult& OutHitInfo, FVector& OutImpulseDir) const override {}
+};*/

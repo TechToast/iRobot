@@ -3,18 +3,19 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "DummyRobotGridData.h"
-//#include "Interfaces/IInteraction.h"
+#include "Interfaces/IScannable.h"
 #include "Entities/HidingPlace/IHideCompatible.h"
 #include "DummyRobotGroup.generated.h"
 
 class ADummyRobot;
 class USceneComponent;
 class UHierarchicalInstancedStaticMeshComponent;
+class USoundCue;
 
 DECLARE_DELEGATE_OneParam(FGridCellChangeDelegate, const struct FGridCell2D& /*ChangedGridCell*/);
 
 UCLASS()
-class IROBOT_API ADummyRobotGroup : public AActor, public IHideCompatible//, public IInteractable
+class IROBOT_API ADummyRobotGroup : public AActor, public IHideCompatible, public IScannable
 {
 	GENERATED_BODY()
 	
@@ -29,7 +30,15 @@ public:
 	virtual bool GetHidingPlaceTransform(FVector InLocation, FTransform& OutTransform) override;
 	virtual void PrepareHidingPlace(FVector InLocation) override;
 	virtual FHidingPlaceReadyEvent* GetOnHidingPlaceReadyEvent() override { return &OnHidingPlaceReady; }
+	virtual void OccupyHidingPlace(FVector InLocation);
+	virtual void VacateHidingPlace(FVector InLocation);
+	virtual bool IsHidingPlaceOccupied(FVector InLocation) override;
 	/// End AHidingPlace interface
+
+	/// Start IScannable interface
+	virtual void OnScanned(int32 ScannedIndex);
+	virtual int32 GetScanIndex(const FVector& ScanHitLocation);
+	/// End IScannable interface
 
 	/// How many columns of robots (X Axis)
 	UPROPERTY(EditInstanceOnly, Category = "DummyRobot|Placement", meta=(ClampMin=1, ClampMax=255))
@@ -58,6 +67,10 @@ public:
 	/// How long to wait after being shot before creating a replacement robot
 	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Mesh", meta=(EditCondition="bRestoreDummyRobots"))
 	float TimeBeforeNewRobot = 25.f;
+
+	/// How long to wait before restoring the scanned state
+	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Mesh")
+	float TimeBeforeScanStateRestored = 5.f;
 
 	/// Name of the collision profile to use once the dummy robot is turned to debris
 	UPROPERTY(EditDefaultsOnly, Category = "DummyRobot|Mesh")
@@ -90,10 +103,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Mesh)
 	TSoftClassPtr<ADummyRobot> DummyRobotClass_Dissolved;
 
+	/// Played when a robot is scanned?
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundCue* ScannedSound;
+
 private:
 
 	/// Find the closest cell to the given location
-	FGridCell2D FindClosestCell(const FVector InLocation) const;
+	bool FindClosestCell(const FVector InLocation, FGridCell2D& OutCell) const;
 
 	/// Find the closest cell to the given location which is not currently occupied
 	//FGridCell2D FindClosestUnoccupiedCell(const FVector InLocation) const;
@@ -113,9 +130,12 @@ private:
 
 	/// Add the given transform to a queue to be restored after a delay
 	void QueueRestoredRobot(FTransform InTransform);
+	void QueueUnscannedRobot(int32 InstanceIndex);
 
 	UFUNCTION()
 	void RestoreInstance(FTransform Trans);
+	UFUNCTION()
+	void RestoreScanState(int32 InstanceIndex);
 
 	/// Create a mapping table of cells to instances
 	void CreateCellToInstanceMapping();
@@ -143,6 +163,10 @@ private:
 
 	/// Data structure to map the given cell to an instance ID
 	TMap<FGridCell2D, int32> CellToInstanceMapping;
+	TMap<int32, FGridCell2D> IndexToCellMapping;
+
+	/// List of currently occupied hiding place cells
+	TSet<FGridCell2D> OccupiedHidingPlaceCells;
 
 	/// Cache the transforms of each grid cell
 	TMap<FGridCell2D, FTransform> CellTransforms;

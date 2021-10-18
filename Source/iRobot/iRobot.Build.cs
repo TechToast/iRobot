@@ -18,7 +18,9 @@ public class iRobot : ModuleRules
 				"OnlineSubsystemUtils",
 				"OnlineSubsystemSteam",
 				"PhysicsCore",
-				"UMG"
+				"UMG",
+				"Json",
+				"JsonUtilities"
 			}
 		);
 

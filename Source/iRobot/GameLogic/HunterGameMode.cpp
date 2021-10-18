@@ -26,6 +26,27 @@ void AHunterGameMode::StartPlay()
 }
 
 
+void AHunterGameMode::StartMatch()
+{
+	Super::StartMatch();
+
+
+}
+
+
+/*bool AHunterGameMode::ReadyToStartMatch_Implementation()
+{
+	if (GetMatchState() == MatchState::WaitingToStart)
+	{
+		if (NumPlayers + NumBots > 2)
+		{
+			return true;
+		}
+	}
+	return false;
+}*/
+
+
 void AHunterGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
 	AHunterGameState* const HunterGameState = Cast<AHunterGameState>(GameState);

@@ -5,16 +5,18 @@
 //#include "Engine/Canvas.h" // for FCanvasIcon
 #include "WeaponData.h"
 #include "Camera/CameraShakeBase.h"
+#include "Player/Hunter/HunterCharacter.h"
+#include "WeaponAnimInstance.h"
 #include "Weapon.generated.h"
 
 class UAnimMontage;
-class AHunterCharacter;
 class UAudioComponent;
 class UParticleSystemComponent;
 class UCameraShakeBase;
 //class UForceFeedbackEffect;
 class USoundCue;
 
+DECLARE_EVENT(AWeapon, FOnWeaponEquipFinished)
 
 UCLASS(Abstract)
 class AWeapon : public AActor
@@ -25,21 +27,24 @@ public:
 	AWeapon(const FObjectInitializer& ObjectInitializer);
 
 	/// Weapon data getters
-	FORCEINLINE float GetRateOfFire() const						{ return WeaponData.RateOfFire; }
-	//FORCEINLINE float GetImpactImpulse() const					{ return WeaponData.ImpactImpulse; }
-	FORCEINLINE float GetTimeBetweenShots() 					{ return WeaponData.GetTimeBetweenShots(); }
-	FORCEINLINE TSubclassOf<UDamageType> GetDamageType() const	{ return WeaponData.DamageType; }
-	FORCEINLINE int32 GetHitDamage() const						{ return WeaponData.HitDamage; }
+	FORCEINLINE float GetRateOfFire() const								{ return WeaponData.RateOfFire; }
+	//FORCEINLINE float GetImpactImpulse() const						{ return WeaponData.ImpactImpulse; }
+	FORCEINLINE float GetTimeBetweenShots() 							{ return WeaponData.GetTimeBetweenShots(); }
+	FORCEINLINE TSubclassOf<UDamageType> GetDamageType() const			{ return WeaponData.DamageType; }
+	FORCEINLINE int32 GetHitDamage() const								{ return WeaponData.HitDamage; }
+	FORCEINLINE UTexture2D* GetCrosshairTexture() const					{ return CrosshairTexture; }
+	
+	FOnWeaponEquipFinished* GetOnWeaponEquipFinished()					{ return &OnWeaponEquipFinished; }
 
 	/// General getters
-	EWeaponState			GetCurrentState() const				{ return CurrentState; }
-	AHunterCharacter*		GetOwningPawn() const				{ return OwningPawn; }
-	USkeletalMeshComponent* GetWeaponMesh() const;
-	FVector					GetMuzzleLocation() const;
-	FVector					GetMuzzleDirection() const;
+	EWeaponState						GetCurrentState() const			{ return CurrentState; }
+	TWeakObjectPtr<AHunterCharacter>	GetOwningPawn() const			{ return OwningPawn.Get(); }
+	USkeletalMeshComponent*				GetWeaponMesh() const;
+	FVector								GetMuzzleLocation() const;
+	FVector								GetMuzzleDirection() const;
 
-	bool IsEquipped() const										{ return bIsEquipped; }
-	bool IsAttachedToPawn() const								{ return bIsEquipped/* || bPendingEquip*/; }
+	bool IsEquipped() const												{ return bIsEquipped; }
+	bool IsAttachedToPawn() const										{ return bIsEquipped/* || bPendingEquip*/; }
 
 	/// General setters
 	void SetOwningPawn(AHunterCharacter* InCharacter);
@@ -59,6 +64,7 @@ public:
 
 protected:
 	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
 
 	/// Data about the weapon
@@ -113,6 +119,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Animation")
 	bool bLoopedFireAnim;
 
+	/// The crosshair texture to use for this weapon. Leave blank if none required
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Crosshair")
+	UTexture2D* CrosshairTexture;
+
 	/// Adjustment to handle frame rate affecting actual timer interval.
 	UPROPERTY(Transient)
 	float TimerIntervalAdjustment;
@@ -133,12 +143,16 @@ protected:
 
 	/// Trace forward from the weapon to see if we hit anything
 	FHitResult WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo) const;
+	FHitResult WeaponSweep(const FVector& StartTrace, const FVector& EndTrace, const FCollisionShape& Shape) const;
 
 	/// Get the aim of the camera
 	FVector GetCameraAim() const;
 
 	/// Get the originating location for camera traces
 	FVector GetCameraTraceStartLocation(const FVector& AimDir) const;
+
+	/// Delegate events
+	FOnWeaponEquipFinished OnWeaponEquipFinished;
 
 protected:
 
@@ -189,7 +203,7 @@ private:
 
 	/// Pawn owner
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_OwningPawn)
-	class AHunterCharacter* OwningPawn;
+	TWeakObjectPtr<AHunterCharacter> OwningPawn;
 
 	/// Called when OwningPawn is replicated
 	UFUNCTION()
@@ -210,6 +224,10 @@ private:
 	/// Audio component reference to play local looped sounds
 	UPROPERTY(Transient)
 	UAudioComponent* FireAC;
+
+	/// Hold a reference to the anim instances of this weapon
+	//TWeakObjectPtr<UWeaponAnimInstance> AnimInstance1P;
+	//TWeakObjectPtr<UWeaponAnimInstance> AnimInstance3P;
 
 	FTimerHandle TimerHandle_HandleFiring;
 

@@ -11,6 +11,8 @@
 #include "Entities/HidingPlace/HidingPlaceUtils.h"
 #include "Entities/HidingPlace/IHideCompatible.h"
 #include "EscapeeCharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -19,6 +21,8 @@
 AEscapeeCharacter::AEscapeeCharacter(const FObjectInitializer& ObjectInitializer) 
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UEscapeeCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
+	PrimaryActorTick.bCanEverTick = false;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -50,33 +54,10 @@ AEscapeeCharacter::AEscapeeCharacter(const FObjectInitializer& ObjectInitializer
 }
 
 
-void AEscapeeCharacter::Tick(float Delta)
+/*void AEscapeeCharacter::Tick(float Delta)
 {
 	Super::Tick(Delta);
-	
-	/*UE_LOG(LogTemp, Log, TEXT("Location = %f, %f, %f"), 
-		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).X, 
-		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).Y,
-		CameraBoom->GetSocketLocation(USpringArmComponent::SocketName).Z);
-	UE_LOG(LogTemp, Log, TEXT("Rotation = %f, %f, %f"), 
-		CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Pitch, CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Yaw, CameraBoom->GetSocketRotation(USpringArmComponent::SocketName).Roll);
-	*/
-	/*if (GetLocalRole() == ROLE_Authority)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Server Rotation = %f, %f, %f"),
-			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Pitch,
-			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Yaw,
-			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Roll);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("Client Rotation = %f, %f, %f"),
-			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Pitch,
-			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Yaw,
-			RootComponent->GetSocketRotation(USpringArmComponent::SocketName).Roll);
-	}*/
-
-}
+}*/
 
 
 void AEscapeeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -84,6 +65,7 @@ void AEscapeeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(AEscapeeCharacter, HideState, COND_None);
+	DOREPLIFETIME_CONDITION(AEscapeeCharacter, bScanned, COND_None);
 	DOREPLIFETIME_CONDITION(AEscapeeCharacter, CurrentHidingPlaceTransform, COND_OwnerOnly);
 }
 
@@ -96,6 +78,14 @@ void AEscapeeCharacter::BeginPlay()
 	{
 		AnimInstance = Cast<UEscapeeAnimInstance>(GetMesh()->GetAnimInstance());
 		ensureMsgf(AnimInstance.IsValid(), TEXT("AEscapeeCharacter::BeginPlay() - Anim instance doesn't inherit from UEscapeeAnimInstance."));
+
+		if (GetNetMode() != NM_DedicatedServer)
+		{
+			if (ScannedStateMaterialIndex < GetMesh()->GetNumMaterials() && ScannedStateParamName != NAME_None)
+			{
+				ScannedStateMaterial = GetMesh()->CreateDynamicMaterialInstance(ScannedStateMaterialIndex);
+			}
+		}
 	}
 
 	EscapeeCharMove = Cast<UEscapeeCharacterMovementComponent>(GetMovementComponent());
@@ -166,6 +156,15 @@ void AEscapeeCharacter::MoveRight(float Value)
 void AEscapeeCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser)
 {
 	Super::OnDeath(KillingDamage, DamageEvent, InstigatingPawn, DamageCauser);
+}
+
+
+void AEscapeeCharacter::Jump()
+{
+	if (bWantsToHide)
+		return;
+
+	Super::Jump();
 }
 
 
@@ -251,6 +250,8 @@ void AEscapeeCharacter::UnHide()
 	{
 		HideState = EHidingPlaceType::HP_None;
 		OnRep_HideState();
+
+		CurrentHidingPlace->VacateHidingPlace(GetActorLocation());
 	}
 }
 
@@ -294,21 +295,22 @@ bool AEscapeeCharacter::GetHidingPlace(TScriptInterface<IHideCompatible>& OutHid
 	float BestDistSquared = FLT_MAX;
 	bool bHidingPlaceFound = false;
 
-	FVector CharacterLocation = GetActorLocation();
+	const FVector& CharacterLocation = GetActorLocation();
 
 	for (TScriptInterface<IHideCompatible>& HidingPlace : HidingPlaceUtils::GetHidingPlaces())
 	{
 		if (HidingPlace != nullptr && HidingPlace->IsWithinRange(CharacterLocation, MaxInteractionDistance))
 		{
 			FTransform HidingPlaceTransform;
-			HidingPlace->GetHidingPlaceTransform(CharacterLocation, HidingPlaceTransform);
-			
-			float DistSq = FVector::DistSquared(CharacterLocation, HidingPlaceTransform.GetLocation());
-			if (DistSq < BestDistSquared)
+			if (HidingPlace->GetHidingPlaceTransform(CharacterLocation, HidingPlaceTransform))
 			{
-				BestDistSquared = DistSq;
-				OutHidingPlace = HidingPlace;
-				bHidingPlaceFound = true;
+				float DistSq = FVector::DistSquared(CharacterLocation, HidingPlaceTransform.GetLocation());
+				if (DistSq < BestDistSquared)
+				{
+					BestDistSquared = DistSq;
+					OutHidingPlace = HidingPlace;
+					bHidingPlaceFound = true;
+				}
 			}
 		}
 	}
@@ -328,10 +330,14 @@ void AEscapeeCharacter::OnHidingPlaceReady()
 			HidingPlaceReadyHandle.Reset();
 		}
 
+		const FVector& CharacterLocation = GetActorLocation();
+
 		// Now hide
 		FTransform HidingPlaceTransform;
-		if (CurrentHidingPlace->GetHidingPlaceTransform(GetActorLocation(), HidingPlaceTransform))
+		if (CurrentHidingPlace->GetHidingPlaceTransform(CharacterLocation, HidingPlaceTransform))
 		{
+			CurrentHidingPlace->OccupyHidingPlace(CharacterLocation);
+
 			FVector Location = HidingPlaceTransform.GetLocation();
 			Location.Z = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 			HidingPlaceTransform.SetLocation(Location);
@@ -355,5 +361,49 @@ void AEscapeeCharacter::OnRep_CurrentHidingPlaceTransform()
 	{
 		EscapeeCharMove->SetHidingPlaceRotation(CurrentHidingPlaceTransform.Transform.GetRotation());
 		EscapeeCharMove->SetUseHidingPlaceRotation(true);
+	}
+}
+
+
+void AEscapeeCharacter::OnScanned(int32 ScannedIndex)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		SetScannedState(true);
+
+		// Start a timer to disable the state
+		GetWorld()->GetTimerManager().SetTimer(ScannedTimerHandle, this, &AEscapeeCharacter::OnScanStateRestored, TimerBeforeScanStateChange, false);
+	}
+}
+
+
+void AEscapeeCharacter::OnRep_bScanned()
+{
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		if (ScannedStateMaterial.IsValid())
+		{
+			ScannedStateMaterial->SetScalarParameterValue(ScannedStateParamName, bScanned ? 1.f : 0.f);
+		}
+
+		// Play sound
+		if (bScanned)
+			UGameplayStatics::PlaySoundAtLocation(this, ScannedSound, GetActorLocation());
+	}
+}
+
+
+void AEscapeeCharacter::OnScanStateRestored()
+{
+	SetScannedState(false);
+}
+
+
+void AEscapeeCharacter::SetScannedState(bool bInState)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		bScanned = bInState;
+		OnRep_bScanned();
 	}
 }
