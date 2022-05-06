@@ -564,12 +564,12 @@ void AWeapon::DetachMeshFromPawn()
 }
 
 
-UAudioComponent* AWeapon::PlayWeaponSound(USoundCue* Sound)
+UAudioComponent* AWeapon::PlayWeaponSound(USoundCue* Sound, float VolumeMultiplier)
 {
 	UAudioComponent* AC = NULL;
 	if (Sound && OwningPawn.IsValid())
 	{
-		AC = UGameplayStatics::SpawnSoundAttached(Sound, OwningPawn->GetRootComponent());
+		AC = UGameplayStatics::SpawnSoundAttached(Sound, OwningPawn->GetRootComponent(), NAME_None, FVector::ZeroVector, EAttachLocation::KeepRelativeOffset, true, VolumeMultiplier);
 	}
 
 	return AC;

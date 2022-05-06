@@ -7,7 +7,6 @@
 
 class UMaterialInstanceDynamic;
 
-
 UCLASS()
 class AProximityWeapon : public AWeapon
 {
@@ -15,11 +14,11 @@ class AProximityWeapon : public AWeapon
 
 	FORCEINLINE float GetWeaponRange() const		{ return ProximityWeaponData.WeaponRange; }
 	FORCEINLINE float GetWeaponSweepRadius() const  { return ProximityWeaponData.WeaponSweepRadius; }
-	FORCEINLINE float GetPulseDuration() const		{ return ProximityWeaponData.PulseDuration; }
-	FORCEINLINE float GetPulseSweepDuration() const { return FMath::Min(ProximityWeaponData.PulseSweepDuration, ProximityWeaponData.PulseDuration); }
-	FORCEINLINE float GetTimeBetweenPulses() const	{ return ProximityWeaponData.TimeBetweenPulses; }
+	FORCEINLINE float GetPulseDuration() const		{ return PulseDuration; }
+	FORCEINLINE float GetPulseSweepDuration() const { return FMath::Min(PulseSweepDuration, PulseDuration); }
+	FORCEINLINE float GetTimeBetweenPulses() const	{ return TimeBetweenPulses; }
 	FORCEINLINE float GetPulseTotalTime() const		{ return GetPulseDuration() + GetTimeBetweenPulses(); }
-	FORCEINLINE float GetPulseRadius() const		{ return ProximityWeaponData.PulseRadius; }
+	FORCEINLINE float GetPulseRadius() const		{ return PulseRadius; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -69,17 +68,73 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
 	UMaterialInterface* ProximityDotBrushMaterial;
 
+	/// The name of the intensity parameter on the dot brush material
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	FName IntensityParamName = TEXT("Intensity");
+
+	/// Duration of each proximity pulse
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	float PulseDuration = 0.5f;
+
+	/// Duration of the visible sweep during a proximity pulse ( Must always be less than or equal to PulseDuration)
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	float PulseSweepDuration = 0.2f;
+
+	/// How long between proximity pulses
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	float TimeBetweenPulses = 2.f;
+
+	/// Pulse Radius
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	float PulseRadius = 300.f;
+
+	/// The speed at which the scanner detects the target at minimum intensity
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	float MinSpeedThreshold = 5.f;
+
+	/// Should the image be faded based on the speed of the target
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	bool bFadeBasedOnSpeed = true;
+
+	/// The speed at which the scanner detects the target at full intensity
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner", meta = (EditCondition = "bFadeBasedOnSpeed"))
+	float MaxSpeedThreshold = 300.f;
+
+	/// The minimum intensity when the target speed is at or below the MinSpeedThreshold 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner", meta = (EditCondition = "bFadeBasedOnSpeed"))
+	float MinSpeedIntensity = 0.25f;
+
+	/// Should the image be faded based on the distance of the target
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
+	bool bFadeBasedOnDistance = true;
+
+	/// The distance at which the scanner starts to fade the intensity (fully faded at PulseRadius)
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner", meta = (EditCondition = "bFadeBasedOnDistance"))
+	float MinDistanceThreshold = 5.f;
+
+	/// The minimum intensity when the target distance is at or below the MinDistanceThreshold 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner", meta = (EditCondition = "bFadeBasedOnDistance"))
+	float MinDistanceIntensity = 0.25f;
+
 	/// Ratio of render texture size to use as the dot size
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
 	float DotSizeRatio = 0.01f;
 
-	/// Should the scanner only detect targets that are in motion
+	/// Offset the dot from the centre of the texture by a certain ratio
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner")
-	bool bDetectOnlyMotion = false;
+	float CentreOffsetRatio = 0.05f;
 
-	/// The minimum speed that the scanner will detect
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Scanner", meta=(EditCondition="bDetectOnlyMotion"))
-	float MinSpeedThreshold = 5.f;
+	/// Pulse sound
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Sound")
+	USoundCue* PulseSound;
+
+	/// Blip sound
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Sound")
+	USoundCue* BlipSound;
+
+	/// Volume of the blip at minimum intensity
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon|Sound")
+	float MinBlipVolume = 0.25f;
 
 private:
 
@@ -89,8 +144,6 @@ private:
 	/// Continue processing the hit, as if it has been confirmed by the server
 	void ProcessSweepHit_Confirmed(const FHitResult& Impact);
 
-	void DealDamage(const FHitResult& Impact);
-	
 	/// Reset the scanner hit data on server
 	UFUNCTION(Server, Reliable)
 	void SERVER_ResetScannerHit();
@@ -107,14 +160,17 @@ private:
 	void GatherPulseTargets();
 
 	float TimeSinceLastPulse = FLT_MAX;
-	float PulseRadiusSquared;
 	float MinSpeedThresholdSquared;
+	float MaxSpeedThresholdSquared;
 
 	TWeakObjectPtr<UMaterialInstanceDynamic> ScannerMaterial;
 	TArray<TWeakObjectPtr<AActor>> PulseTargets;
-	TArray<FVector2D> PulseTargetLocations;
+	TArray<FProximityTargetLocation> PulseTargetLocations;
 
 	/// The last actor that was hit by the scanner weapon
 	TScriptInterface<IScannable> LastWeaponHitActor = nullptr;
 	int32 LastWeaponHitIndex = -1;
+
+	UPROPERTY(Transient)
+	UMaterialInstanceDynamic* DynamicProximityDotBrushMaterial;
 };

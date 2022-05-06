@@ -453,6 +453,7 @@ void ADummyRobotGroup::OnGridCellChange(const struct FGridCell2D& ChangedGridCel
 
 			int32 Value = ChangedGridCell.bScanned ? 1 : 0;
 			InstancedMesh->SetCustomDataValue(CellToInstanceMapping[ChangedGridCell], 0, Value, true);
+			InstancedMesh->BuildTreeIfOutdated(true, false);
 
 			// Play sound
 			if (GetNetMode() != NM_DedicatedServer)

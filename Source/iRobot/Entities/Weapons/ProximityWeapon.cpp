@@ -31,8 +31,10 @@ void AProximityWeapon::BeginPlay()
 			ScannerMaterial = Mesh3P->CreateDynamicMaterialInstance(ScannerMaterialIDMesh3P);
 	}
 
-	PulseRadiusSquared = GetPulseRadius() * GetPulseRadius();
 	MinSpeedThresholdSquared = MinSpeedThreshold * MinSpeedThreshold;
+	MaxSpeedThresholdSquared = MaxSpeedThreshold * MaxSpeedThreshold;
+
+	DynamicProximityDotBrushMaterial = UMaterialInstanceDynamic::Create(ProximityDotBrushMaterial, this, TEXT("DynamicProximityDotBrushMaterial"));
 }
 
 
@@ -151,12 +153,6 @@ void AProximityWeapon::ProcessSweepHit_Confirmed(const FHitResult& Impact)
 }
 
 
-void AProximityWeapon::DealDamage(const FHitResult& Impact)
-{
-
-}
-
-
 void AProximityWeapon::OnEquipFinished()
 {
 	Super::OnEquipFinished();
@@ -203,6 +199,9 @@ void AProximityWeapon::BeginPulse()
 		return;
 
 	PerformProximityCheck();
+	
+	if (PulseSound)
+		PlayWeaponSound(PulseSound);
 }
 
 
@@ -234,16 +233,29 @@ void AProximityWeapon::PerformProximityCheck()
 				const FVector& PlayerPosition = GetOwningPawn()->GetActorLocation();
 				const FVector& TargetPosition = Target->GetActorLocation();
 				const FVector Diff = PlayerPosition - TargetPosition;
+				const float Distance = Diff.Size();
+				const float TargetSpeedSquared = Target->GetVelocity().SizeSquared();
 
-				// Within Range, draw a dot
-				if (Diff.SizeSquared() < PulseRadiusSquared)
+				// Distance and speed checks
+				if (Distance < GetPulseRadius() && TargetSpeedSquared >= MinSpeedThresholdSquared)
 				{
-					const FVector Location = (PlayerPosition - TargetPosition) / GetPulseRadius();
+					const FVector Location = Diff / (GetPulseRadius() * 2.f);
 
-					if (bDetectOnlyMotion && Target->GetVelocity().SizeSquared() < MinSpeedThresholdSquared)
-						continue;
+					float Intensity = 1.f;
 
-					PulseTargetLocations.Add(FVector2D(Location.Y + 0.5f, (-Location.X + 0.5f)));
+					if (bFadeBasedOnDistance)
+					{
+						float DistanceRange = GetPulseRadius() - MinDistanceThreshold;
+						if (Distance > MinDistanceThreshold)
+							Intensity *= FMath::Clamp((1.f - (Distance - MinDistanceThreshold) / DistanceRange), MinDistanceIntensity, 1.f);
+					}
+
+					if (bFadeBasedOnSpeed)
+						Intensity *= FMath::Clamp(TargetSpeedSquared / MaxSpeedThresholdSquared, MinSpeedIntensity, 1.f);
+
+					const FVector Offset = Diff.GetSafeNormal() * CentreOffsetRatio;
+
+					PulseTargetLocations.Add(FProximityTargetLocation(FVector2D(Location.Y + 0.5f + Offset.Y, (-Location.X + 0.5f - Offset.X)), Intensity));
 				}
 			}
 		}
@@ -264,7 +276,7 @@ void AProximityWeapon::UpdateProximityTexture()
 		return;
 	}
 
-	if (!ProximityDotBrushMaterial || !ProximityDotBrushMaterial->IsValidLowLevel())
+	if (!DynamicProximityDotBrushMaterial || !DynamicProximityDotBrushMaterial->IsValidLowLevel())
 	{
 		UE_LOG(LogiRobotWeapon, Error, TEXT("AProximityWeapon::UpdateProximityTexture - ProximityDotBrushMaterial is null or invalid on %s"), *GetName());
 		return;
@@ -272,24 +284,38 @@ void AProximityWeapon::UpdateProximityTexture()
 
 	UKismetRenderingLibrary::ClearRenderTarget2D(this, ProximityTexture, FLinearColor::Black);
 
-	UCanvas* Canvas = nullptr;
-	FDrawToRenderTargetContext Context;
-	FVector2D Size(ProximityTexture->SizeX, ProximityTexture->SizeY);
-	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(this, ProximityTexture, Canvas, Size, Context);
-
-	for (int32 Index = 0; Index < PulseTargetLocations.Num(); Index++)
+	if (PulseTargetLocations.Num() > 0)
 	{
-		const FVector2D& ThePosition = PulseTargetLocations[Index];//FVector2D(FMath::RandRange(0.f, 1.f), FMath::RandRange(0.f, 1.f));
+		float MaxIntensity = 0.f;
 
-		FVector2D ScreenSize = Size * DotSizeRatio;
-		FVector2D ScreenPosition = (ThePosition * Size) - (ScreenSize * 0.5f);
-		FVector2D CoordinatePosition = FVector2D::ZeroVector;
-		FVector2D CoordinateSize = FVector2D::UnitVector;
+		UCanvas* Canvas = nullptr;
+		FDrawToRenderTargetContext Context;
+		FVector2D Size(ProximityTexture->SizeX, ProximityTexture->SizeY);
+		UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(this, ProximityTexture, Canvas, Size, Context);
 
-		Canvas->K2_DrawMaterial(ProximityDotBrushMaterial, ScreenPosition, ScreenSize, CoordinatePosition);
+		for (int32 Index = 0; Index < PulseTargetLocations.Num(); Index++)
+		{
+			const FVector2D& ThePosition = PulseTargetLocations[Index].Location;
+
+			FVector2D ScreenSize = Size * DotSizeRatio;
+			FVector2D ScreenPosition = (ThePosition * Size) - (ScreenSize * 0.5f);
+			FVector2D CoordinatePosition = FVector2D::ZeroVector;
+			FVector2D CoordinateSize = FVector2D::UnitVector;
+
+			DynamicProximityDotBrushMaterial->SetScalarParameterValue(IntensityParamName, PulseTargetLocations[Index].Intensity);
+
+			MaxIntensity = FMath::Max(MaxIntensity, PulseTargetLocations[Index].Intensity);
+
+			Canvas->K2_DrawMaterial(DynamicProximityDotBrushMaterial, ScreenPosition, ScreenSize, CoordinatePosition);
+		}
+
+		UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(this, Context);
+
+		if (BlipSound)
+		{
+			PlayWeaponSound(BlipSound, FMath::Max(MinBlipVolume, MaxIntensity));
+		}
 	}
-
-	UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(this, Context);
 }
 
 

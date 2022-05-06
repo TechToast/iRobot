@@ -99,11 +99,12 @@ void AEscapeeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	// Set up gameplay key bindings
 	if (PlayerInputComponent)
 	{
-		PlayerInputComponent->BindAction("[ESCAPEE]Interact", IE_Pressed, this, &AEscapeeCharacter::OnInteractButtonPressed);
+		//PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AEscapeeCharacter::OnInteractButtonPressed);
+		PlayerInputComponent->BindAction("[ESCAPEE]Crouch", IE_Released, this, &AEscapeeCharacter::OnCrouchButtonPressed);
 
 		//PlayerInputComponent->BindAction("Hide", IE_Pressed, this, &AEscapeeCharacter::OnHideButtonHeld);
 		//PlayerInputComponent->BindAction("Hide", IE_Released, this, &AEscapeeCharacter::OnHideButtonReleased);
-		PlayerInputComponent->BindAction("Hide", IE_Released, this, &AEscapeeCharacter::OnHideButtonPressed);
+		PlayerInputComponent->BindAction("[ESCAPEE]Hide", IE_Released, this, &AEscapeeCharacter::OnHideButtonPressed);
 	}
 }
 
@@ -168,6 +169,57 @@ void AEscapeeCharacter::Jump()
 }
 
 
+void AEscapeeCharacter::OnCrouchButtonPressed()
+{
+	AiRobotPlayerController* PC = Cast<AiRobotPlayerController>(Controller);
+	if (PC && PC->IsGameInputAllowed())
+	{
+		if (CanCrouch())
+		{
+			Crouch();
+		}
+		else
+		{
+			UnCrouch();
+		}
+	}
+}
+
+
+void AEscapeeCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+
+	if (AnimInstance.IsValid())
+		AnimInstance->SetIsCrouching(true);
+}
+
+
+void AEscapeeCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+
+	if (AnimInstance.IsValid())
+		AnimInstance->SetIsCrouching(false);
+}
+
+
+void AEscapeeCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
+
+	if (GetCharacterMovement() && AnimInstance.IsValid())
+		AnimInstance->SetIsInAir(GetCharacterMovement()->IsFalling());
+}
+
+
+void AEscapeeCharacter::OnVelocityUpdated()
+{
+	if (AnimInstance.IsValid())
+		AnimInstance->SetCurrentSpeed(GetVelocity().Size());
+}
+
+
 /*void AEscapeeCharacter::OnHideButtonHeld()
 {
 	AiRobotPlayerController* PC = Cast<AiRobotPlayerController>(Controller);
@@ -200,6 +252,9 @@ void AEscapeeCharacter::OnHideButtonPressed()
 		}
 		else
 		{
+			if (bIsCrouched)
+				UnCrouch();
+
 			bWantsToHide = true;
 			Hide();
 		}
@@ -261,7 +316,7 @@ void AEscapeeCharacter::OnRep_HideState()
 	if (GetNetMode() != NM_DedicatedServer)
 	{
 		if (AnimInstance.IsValid())
-			AnimInstance->bFrozen = HideState == EHidingPlaceType::HP_Freeze;
+			AnimInstance->SetIsFrozen(HideState == EHidingPlaceType::HP_Freeze);
 	}
 }
 

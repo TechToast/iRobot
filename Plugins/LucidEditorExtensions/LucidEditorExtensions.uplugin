@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "LucidEditorExtensions",
+	"Description": "A place for editor extensions which do not warrant their own plugin",
+	"Category": "Lucid",
+	"CreatedBy": "Lucid Games",
+	"CreatedByURL": "",
+	"DocsURL": "https://lucidgames.atlassian.net/wiki/spaces/DO/pages/2773418007/Lucid+Editor+Extensions",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "MenuExtensions",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}

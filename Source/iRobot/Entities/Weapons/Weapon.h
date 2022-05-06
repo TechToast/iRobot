@@ -141,6 +141,9 @@ protected:
 	/// Firing finished
 	virtual void OnBurstFinished();
 
+	/// Play the given sound
+	UAudioComponent* PlayWeaponSound(USoundCue* Sound, float VolumeMultiplier = 1.f);
+
 	/// Trace forward from the weapon to see if we hit anything
 	FHitResult WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo) const;
 	FHitResult WeaponSweep(const FVector& StartTrace, const FVector& EndTrace, const FCollisionShape& Shape) const;
@@ -197,9 +200,6 @@ private:
 
 	/// Stop playing weapon animations
 	void StopWeaponAnimation(const FWeaponAnim& Animation);
-
-	/// Play the given sound
-	UAudioComponent* PlayWeaponSound(USoundCue* Sound);
 
 	/// Pawn owner
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_OwningPawn)

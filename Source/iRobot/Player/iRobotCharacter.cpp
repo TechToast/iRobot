@@ -431,7 +431,7 @@ void AiRobotCharacter::Interact()
 		SERVER_StartInteraction();
 
 #if WITH_EDITOR
-		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 5.f);
+		//DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 5.f);
 #endif
 
 		return;

@@ -119,7 +119,7 @@ void UiRobotGameInstance::OnCreateSessionComplete(FName SessionName, bool bSucce
 	if (!HunterGameMap.IsNull())
 	{
 		//bUseSeamlessTravel = true;
-		const FString TravelURL = TEXT("/Game/Maps/iRobot_TestMap?listen");//FString::Printf(TEXT("%s?listen"), *HunterGameMap.ToSoftObjectPath().ToString());
+		const FString TravelURL = TEXT("/Game/Maps/iRobot_TestMap2?listen");//FString::Printf(TEXT("%s?listen"), *HunterGameMap.ToSoftObjectPath().ToString());
 		World->ServerTravel(TravelURL);
 	}
 	else

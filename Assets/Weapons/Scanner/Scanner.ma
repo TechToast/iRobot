@@ -1,6 +1,6 @@
 //Maya ASCII 2020 scene
 //Name: Scanner.ma
-//Last modified: Wed, Oct 13, 2021 10:50:41 AM
+//Last modified: Tue, Oct 19, 2021 02:56:04 PM
 //Codeset: 1252
 requires maya "2020";
 currentUnit -l centimeter -a degree -t ntsc;
@@ -9,21 +9,21 @@ fileInfo "product" "Maya 2020";
 fileInfo "version" "2020";
 fileInfo "cutIdentifier" "201911140446-42a737a01c";
 fileInfo "osv" "Microsoft Windows 10 Technical Preview  (Build 19043)\n";
-fileInfo "UUID" "3FA3481A-404D-CB3A-A60D-6A810AE410FC";
+fileInfo "UUID" "34F60302-4608-6523-4537-0BB9C82F2CE1";
 createNode transform -s -n "persp";
 	rename -uid "17562804-46CC-AED1-CC65-6DA984DC051B";
 	setAttr ".v" no;
-	setAttr ".t" -type "double3" 1039.0707573512846 186.44900144017259 -228.16997073870732 ;
-	setAttr ".r" -type "double3" -10.53835272628282 824.99999999910005 0 ;
+	setAttr ".t" -type "double3" 56.542226414139407 42.738416309015207 -47.420200202057075 ;
+	setAttr ".r" -type "double3" -14.138352726171149 858.99999999886586 0 ;
 createNode camera -s -n "perspShape" -p "persp";
 	rename -uid "A179C67C-4616-3FAA-0C43-D7879D797610";
 	setAttr -k off ".v" no;
 	setAttr ".fl" 34.999999999999993;
-	setAttr ".coi" 1094.8494861407862;
+	setAttr ".coi" 93.743705656318198;
 	setAttr ".imn" -type "string" "persp";
 	setAttr ".den" -type "string" "persp_depth";
 	setAttr ".man" -type "string" "persp_mask";
-	setAttr ".tp" -type "double3" 0 12.620245933532715 25.650627136230469 ;
+	setAttr ".tp" -type "double3" 0 13.444881916046143 8.8065738677978516 ;
 	setAttr ".hc" -type "string" "viewSet -p %camera";
 createNode transform -s -n "top";
 	rename -uid "386597FC-4AF5-CD95-98FB-32BC4F5B2E15";
@@ -75,38 +75,19 @@ createNode camera -s -n "sideShape" -p "side";
 	setAttr ".o" yes;
 createNode transform -n "ScannerV1";
 	rename -uid "BBC8DADC-4A80-0C21-9999-8F9EF2899580";
-	setAttr -l on ".tx";
-	setAttr -l on ".ty";
-	setAttr -l on ".tz";
-	setAttr -l on ".rx";
-	setAttr -l on ".ry";
-	setAttr -l on ".rz";
-	setAttr -l on ".sx";
-	setAttr -l on ".sy";
-	setAttr -l on ".sz";
+	setAttr ".v" no;
 	setAttr ".rp" -type "double3" 0 11.122740360020739 8.2725486755371094 ;
 	setAttr ".sp" -type "double3" 0 11.122740360020739 8.2725486755371094 ;
 createNode mesh -n "ScannerV1Shape" -p "ScannerV1";
 	rename -uid "4782A783-442B-8ACA-6FC4-E6B848BA466A";
 	setAttr -k off ".v";
-	setAttr -s 10 ".iog[0].og";
+	setAttr -s 3 ".iog[0].og";
+	setAttr ".iog[0].og[0].gcl" -type "componentList" 1 "f[0]";
+	setAttr ".iog[0].og[1].gcl" -type "componentList" 1 "f[34:2097]";
+	setAttr ".iog[0].og[2].gcl" -type "componentList" 2 "f[1:33]" "f[2098:7419]";
 	setAttr ".vir" yes;
 	setAttr ".vif" yes;
 	setAttr ".pv" -type "double2" 0.49999994039535522 0.50197598338127136 ;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".ccls" -type "string" "colorSet0";
-	setAttr ".clst[0].clsn" -type "string" "colorSet0";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
-	setAttr ".vcs" 2;
-createNode mesh -n "ScannerV1ShapeOrig" -p "ScannerV1";
-	rename -uid "271DD21A-4DAC-A391-A95D-F98C2B444B25";
-	setAttr -k off ".v";
-	setAttr ".io" yes;
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
 	setAttr ".uvst[0].uvsn" -type "string" "map1";
 	setAttr -s 5781 ".uvst[0].uvsp";
 	setAttr ".uvst[0].uvsp[0:249]" -type "float2" 0.049171705 0.14285368 0.049158216
@@ -1590,6 +1571,7 @@ createNode mesh -n "ScannerV1ShapeOrig" -p "ScannerV1";
 		 0.49999905;
 	setAttr ".cuvs" -type "string" "map1";
 	setAttr ".dcc" -type "string" "Ambient+Diffuse";
+	setAttr ".ccls" -type "string" "colorSet0";
 	setAttr ".clst[0].clsn" -type "string" "colorSet0";
 	setAttr -s 22158 ".clst[0].clsp";
 	setAttr ".clst[0].clsp[0:124]"  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
@@ -29899,83 +29881,6 @@ createNode mesh -n "ScannerV1ShapeOrig" -p "ScannerV1";
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".vcs" 2;
-createNode transform -n "ScannerBeam1";
-	rename -uid "83891E8E-41C1-4590-9FCC-53B1504262B2";
-	setAttr ".t" -type "double3" -6.8398466974291251e-15 33.445999414802174 41.129777520652773 ;
-	setAttr -l on ".tx";
-	setAttr -l on ".ty";
-	setAttr -l on ".tz";
-	setAttr ".r" -type "double3" 0 179.99999999999994 -89.999999999999815 ;
-	setAttr -l on ".rx";
-	setAttr -l on ".ry";
-	setAttr -l on ".rz";
-	setAttr ".s" -type "double3" 103.96709054945838 52.297668606761931 111.92121634115051 ;
-	setAttr -l on ".sx";
-	setAttr -l on ".sy";
-	setAttr -l on ".sz";
-	setAttr ".rp" -type "double3" 5.1569482747598385e-30 1.0886639216520624e-14 26.148833650266685 ;
-	setAttr ".rpt" -type "double3" 6.8398466974291196e-15 -25.257833750129336 -32.916649806173375 ;
-	setAttr ".sp" -type "double3" 9.8607613152626476e-32 2.0816681711721685e-16 0.49999998751159835 ;
-	setAttr ".spt" -type "double3" 5.0583406616072121e-30 1.0678472399403407e-14 25.648833662755077 ;
-createNode mesh -n "ScannerBeam1Shape" -p "ScannerBeam1";
-	rename -uid "C6623E37-4D24-645D-C128-5597423A6185";
-	setAttr -k off ".v";
-	setAttr -s 4 ".iog[0].og";
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".pv" -type "double2" 0.5 0.5 ;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
-	setAttr ".vcs" 2;
-createNode mesh -n "ScannerBeam1ShapeOrig" -p "ScannerBeam1";
-	rename -uid "8E567C1F-4CC9-3832-64AD-17BFFC5DFF75";
-	setAttr -k off ".v";
-	setAttr ".io" yes;
-	setAttr ".vir" yes;
-	setAttr ".vif" yes;
-	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr -s 14 ".uvst[0].uvsp[0:13]" -type "float2" 0.38911688 0 0.61088312
-		 0 1 0.99999952 0 1 0.83333331 0.99999958 0.5739221 0 0.66666669 0.99999964 0.53696108
-		 0 0.5 0.99999976 0.5 0 0.33333331 0.99999982 0.46303895 0 0.16666666 0.99999988 0.4260779
-		 0;
-	setAttr ".cuvs" -type "string" "map1";
-	setAttr ".dcc" -type "string" "Ambient+Diffuse";
-	setAttr ".covm[0]"  0 1 1;
-	setAttr ".cdvm[0]"  0 1 1;
-	setAttr -s 14 ".pt[0:13]" -type "float3"  0.084631011 5.0172938e-18 
-		-0.00092305383 -0.084631011 5.0172938e-18 -0.00092305383 -1.6062127 -4.4495183e-15 
-		-0.011457338 1.6062127 -4.4495183e-15 -0.011457338 1.070809 -4.0292163e-15 -0.088782191 
-		-0.056420684 5.0172938e-18 -0.00092305383 0.5354045 -3.7266604e-15 -0.14444448 -0.028210342 
-		6.6852075e-18 -0.0012299068 -2.3934435e-08 -3.6167396e-15 -0.16466734 1.4216556e-09 
-		6.6852075e-18 -0.0012299068 -0.5354045 -3.7266604e-15 -0.14444448 0.028210349 6.6852075e-18 
-		-0.0012299068 -1.070809 -4.0292163e-15 -0.088782191 0.056420691 5.0172938e-18 -0.00092305383;
-	setAttr -s 14 ".vt[0:13]"  -0.11088309 0 0.5 0.11088309 0 0.5 -0.5 1.1920929e-07 -0.49999994
-		 0.5 1.1920929e-07 -0.49999994 0.33333331 1.1920929e-07 -0.49999994 0.073922053 0 0.5
-		 0.16666666 1.1920929e-07 -0.49999994 0.036961026 0 0.5 -7.4505806e-09 1.1920929e-07 -0.49999994
-		 -1.8626451e-09 0 0.5 -0.16666669 1.1920929e-07 -0.49999994 -0.036961034 0 0.5 -0.33333334 1.1920929e-07 -0.49999994
-		 -0.07392206 0 0.5;
-	setAttr -s 19 ".ed[0:18]"  0 13 0 0 2 0 1 3 0 2 12 0 4 3 0 5 1 0 4 5 1
-		 6 4 0 7 5 0 6 7 1 8 6 0 9 7 0 8 9 1 10 8 0 11 9 0 10 11 1 12 10 0 13 11 0 12 13 1;
-	setAttr -s 6 -ch 24 ".fc[0:5]" -type "polyFaces" 
-		f 4 5 2 -5 6
-		mu 0 4 5 1 2 4
-		f 4 8 -7 -8 9
-		mu 0 4 7 5 4 6
-		f 4 11 -10 -11 12
-		mu 0 4 9 7 6 8
-		f 4 14 -13 -14 15
-		mu 0 4 11 9 8 10
-		f 4 17 -16 -17 18
-		mu 0 4 13 11 10 12
-		f 4 0 -19 -4 -2
-		mu 0 4 0 13 12 3;
-	setAttr ".cd" -type "dataPolyComponent" Index_Data Edge 0 ;
-	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
-	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
-	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 createNode joint -n "ScannerRoot";
 	rename -uid "9EEAF184-4106-1A31-108D-18A81BE272DB";
 	addAttr -ci true -h true -sn "fbxID" -ln "filmboxTypeID" -at "short";
@@ -30000,7 +29905,7 @@ createNode joint -n "ScannerBeam" -p "ScannerRoot";
 	setAttr ".mxrl" -type "double3" 360 360 360 ;
 	setAttr ".jo" -type "double3" 2.2888183588199847e-05 0 0 ;
 	setAttr ".bps" -type "matrix" 1 0 0 0 0 0.99999999999999989 1.5881867761018131e-22 0
-		 0 -1.5881867761018131e-22 0.99999999999999989 0 0 8.1881654967804121 34.36196149433934 1;
+		 0 -1.5881867761018131e-22 0.99999999999999989 0 0 8.1881654967804156 48.434896403362899 1;
 	setAttr ".radi" 0.5;
 createNode transform -n "ScannerV2";
 	rename -uid "238EEC6B-402B-B1F3-2E35-EEB05A6C26EA";
@@ -33809,6 +33714,23 @@ createNode mesh -n "ScannerV2Shape" -p "ScannerV2";
 		 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1;
 	setAttr ".covm[0]"  0 1 1;
 	setAttr ".cdvm[0]"  0 1 1;
+	setAttr -s 32 ".pt[0:31]" -type "float3"  -3.5762787e-07 1.1920929e-07 
+		3.1292439e-07 3.5762787e-07 1.1920929e-07 3.1292439e-07 5.9604645e-07 -1.1920929e-07 
+		-2.3841858e-07 -5.9604645e-07 -1.1920929e-07 -2.3841858e-07 3.5762787e-07 -1.1920929e-07 
+		1.6391277e-07 3.5762787e-07 -1.1920929e-07 2.9802322e-08 3.5762787e-07 1.1920929e-07 
+		7.4505806e-08 -3.5762787e-07 1.1920929e-07 7.4505806e-08 -3.5762787e-07 -1.1920929e-07 
+		2.9802322e-08 -3.5762787e-07 -1.1920929e-07 1.6391277e-07 -1.1920929e-07 -1.1920929e-07 
+		7.1525574e-07 1.1920929e-07 0 1.013279e-06 1.1920929e-07 3.5762787e-07 7.1525574e-07 
+		-1.1920929e-07 3.5762787e-07 7.1525574e-07 -1.1920929e-07 0 1.013279e-06 1.1920929e-07 
+		-1.1920929e-07 7.1525574e-07 -1.1920929e-07 -5.9604645e-07 3.1292439e-07 1.1920929e-07 
+		4.7683716e-07 1.6391277e-07 1.1920929e-07 -5.9604645e-07 1.3411045e-07 -1.1920929e-07 
+		4.7683716e-07 1.6391277e-07 1.1920929e-07 -5.9604645e-07 3.1292439e-07 -1.1920929e-07 
+		-5.9604645e-07 1.3411045e-07 3.5762787e-07 -1.1920929e-07 -1.1920929e-07 3.5762787e-07 
+		5.9604645e-07 -1.7881393e-07 3.5762787e-07 -2.3841858e-07 -4.1723251e-07 -3.5762787e-07 
+		5.9604645e-07 -1.7881393e-07 -3.5762787e-07 -1.1920929e-07 -1.1920929e-07 -3.5762787e-07 
+		-2.3841858e-07 -4.1723251e-07 -3.5762787e-07 -1.1920929e-07 2.5331974e-07 3.5762787e-07 
+		-1.1920929e-07 2.5331974e-07 5.9604645e-07 -1.1920929e-07 -2.9802322e-07 -5.9604645e-07 
+		-1.1920929e-07 -2.9802322e-07;
 	setAttr -s 5763 ".vt";
 	setAttr ".vt[0:165]"  -10.30015659 33.57205582 31.27853966 10.30015659 33.57205582 31.27853966
 		 10.30015659 15.71781635 25.88661003 -10.30015659 15.71781635 25.88661003 -10.65035725 14.38035774 28.5976944
@@ -59810,20 +59732,44 @@ createNode mesh -n "ScannerV2Shape" -p "ScannerV2";
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".vcs" 2;
 createNode transform -n "ScannerV3";
-	rename -uid "4454D4B7-46D0-F288-A085-B6978D1D77A8";
-	setAttr ".v" no;
+	rename -uid "5A8A25F3-4EDC-2D1D-AB4E-1EAD79FF4AE1";
+	setAttr -l on ".tx";
+	setAttr -l on ".ty";
+	setAttr -l on ".tz";
+	setAttr -l on ".rx";
+	setAttr -l on ".ry";
+	setAttr -l on ".rz";
+	setAttr -l on ".sx";
+	setAttr -l on ".sy";
+	setAttr -l on ".sz";
 	setAttr ".rp" -type "double3" 0 11.122740360020739 8.2725486755371094 ;
 	setAttr ".sp" -type "double3" 0 11.122740360020739 8.2725486755371094 ;
 createNode mesh -n "ScannerV3Shape" -p "ScannerV3";
-	rename -uid "5BF4EC35-422D-1B5D-D26A-26BEE4046439";
+	rename -uid "9F0C6433-471F-B44A-CB7E-AFB0044352E6";
 	setAttr -k off ".v";
+	setAttr -s 10 ".iog[0].og";
+	setAttr ".vir" yes;
+	setAttr ".vif" yes;
+	setAttr ".pv" -type "double2" 0.49999994039535522 0.56865021586418152 ;
+	setAttr ".uvst[0].uvsn" -type "string" "map1";
+	setAttr ".cuvs" -type "string" "map1";
+	setAttr ".dcc" -type "string" "Ambient+Diffuse";
+	setAttr ".ccls" -type "string" "colorSet0";
+	setAttr ".clst[0].clsn" -type "string" "colorSet0";
+	setAttr ".covm[0]"  0 1 1;
+	setAttr ".cdvm[0]"  0 1 1;
+	setAttr ".vcs" 2;
+createNode mesh -n "polySurfaceShape1" -p "ScannerV3";
+	rename -uid "8112830B-49DB-E46D-DCB0-F9A78F67060A";
+	setAttr -k off ".v";
+	setAttr ".io" yes;
 	setAttr -s 3 ".iog[0].og";
 	setAttr ".iog[0].og[0].gcl" -type "componentList" 1 "f[0]";
 	setAttr ".iog[0].og[1].gcl" -type "componentList" 1 "f[34:2097]";
 	setAttr ".iog[0].og[2].gcl" -type "componentList" 2 "f[1:33]" "f[2098:7419]";
 	setAttr ".vir" yes;
 	setAttr ".vif" yes;
-	setAttr ".pv" -type "double2" 0.49999997019767761 0.5 ;
+	setAttr ".pv" -type "double2" 0.5 0.5 ;
 	setAttr ".uvst[0].uvsn" -type "string" "map1";
 	setAttr -s 5781 ".uvst[0].uvsp";
 	setAttr ".uvst[0].uvsp[0:249]" -type "float2" 0.049171705 0.14285368 0.049158216
@@ -61303,7 +61249,7 @@ createNode mesh -n "ScannerV3Shape" -p "ScannerV3";
 		 0.94052529 0.82727718 0.91758955 0.78182006 0.9155407 0.77793485 0.85501432 0.80443704
 		 0.85518479 0.81928784 0.92197382 0.819686 0.93738651 0.83223742 0.94090247 0.85598022
 		 0.94476783 0.8499679 0.92002177 0.8860811 0.95208704 0.85037631 0.95339751 0.85310978
-		 0.95320094 0.88624841 1 1 0 1 0.2847991 0.5 0.71520084 0.5;
+		 0.95320094 0.88624841 1 1 0 1 0 0 1 0;
 	setAttr ".cuvs" -type "string" "map1";
 	setAttr ".dcc" -type "string" "Ambient+Diffuse";
 	setAttr ".ccls" -type "string" "colorSet0";
@@ -63616,18 +63562,31 @@ createNode mesh -n "ScannerV3Shape" -p "ScannerV3";
 		 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1;
 	setAttr ".covm[0]"  0 1 1;
 	setAttr ".cdvm[0]"  0 1 1;
+	setAttr -s 32 ".pt[0:31]" -type "float3"  1.4503433 -4.7738667 -3.2055237 
+		-1.4503433 -4.7738667 -3.2055237 -3.0872738 -0.56838596 -2.0642741 3.0872738 -0.56838596 
+		-2.0642741 3.1922405 -0.38006133 -2.4460158 3.1922405 -0.39614639 -2.4724293 3.2387893 
+		-0.40131041 -2.45118 -3.2387893 -0.40131041 -2.45118 -3.1922405 -0.39614639 -2.4724293 
+		-3.1922405 -0.38006133 -2.4460158 1.5215222 -4.7471657 -3.6268649 1.4996547 -4.7420015 
+		-3.648114 1.4996547 -4.7684145 -3.6320291 -1.4996547 -4.7684145 -3.6320291 -1.4996547 
+		-4.7420015 -3.648114 -1.5215222 -4.7471657 -3.6268649 1.5215222 -4.8401289 -3.2443364 
+		1.4996547 -4.8613777 -3.2495 1.4996547 -4.845294 -3.2230873 -1.4996547 -4.8613777 
+		-3.2495 -1.5215222 -4.8401289 -3.2443364 -1.4996547 -4.845294 -3.2230873 3.1922405 
+		-0.47302476 -2.0634868 3.2387893 -0.49427345 -2.068651 3.1922405 -0.4994382 -2.0474019 
+		-3.2387893 -0.49427345 -2.068651 -3.1922405 -0.47302476 -2.0634868 -3.1922405 -0.4994382 
+		-2.0474019 1.4503433 -4.7581663 -3.2810185 -1.4503433 -4.7581663 -3.2810185 -3.0872738 
+		-0.55268514 -2.1397688 3.0872738 -0.55268514 -2.1397688;
 	setAttr -s 5763 ".vt";
-	setAttr ".vt[0:165]"  -9.73239136 25.31030464 28.61893272 9.73239136 25.31030464 28.61893272
-		 4.18883801 15.71781635 25.88661003 -4.18883801 15.71781635 25.88661003 -4.63534164 14.38035774 28.5976944
-		 -4.63534164 14.49459267 28.78527832 -4.70293379 14.53126812 28.6343689 4.70293379 14.53126812 28.6343689
-		 4.63534164 14.49459267 28.78527832 4.63534164 14.38035774 28.5976944 -10.80565929 25.12067604 31.61124802
-		 -10.65035725 25.084001541 31.76215744 -10.65035725 25.27158546 31.64792252 10.65035725 25.27158546 31.64792252
-		 10.65035725 25.084001541 31.76215744 10.80565929 25.12067604 31.61124802 -10.80565929 25.78089142 28.89457512
-		 -10.65035725 25.93180275 28.9312458 -10.65035725 25.81757164 28.7436657 10.65035725 25.93180275 28.9312458
-		 10.80565929 25.78089142 28.89457512 10.65035725 25.81757164 28.7436657 -4.63534164 15.040572166 25.88101959
-		 -4.70293379 15.19148254 25.91769409 -4.63534164 15.22815704 25.76678467 4.70293379 15.19148254 25.91769409
-		 4.63534164 15.040572166 25.88101959 4.63534164 15.22815704 25.76678467 -9.73239136 25.19880295 29.15508652
-		 9.73239136 25.19880295 29.15508652 4.18883801 15.60631084 26.42276382 -4.18883801 15.60631084 26.42276382
+	setAttr ".vt[0:165]"  -10.30015659 33.57205582 31.27853966 10.30015659 33.57205582 31.27853966
+		 10.30015659 15.71781635 25.88661003 -10.30015659 15.71781635 25.88661003 -10.65035725 14.38035774 28.5976944
+		 -10.65035725 14.49459267 28.78527832 -10.80565929 14.53126812 28.6343689 10.80565929 14.53126812 28.6343689
+		 10.65035725 14.49459267 28.78527832 10.65035725 14.38035774 28.5976944 -10.80565929 33.38242722 34.27085495
+		 -10.65035725 33.34575272 34.42176437 -10.65035725 33.53333664 34.30752945 10.65035725 33.53333664 34.30752945
+		 10.65035725 33.34575272 34.42176437 10.80565929 33.38242722 34.27085495 -10.80565929 34.042640686 31.55418205
+		 -10.65035725 34.19355392 31.59085274 -10.65035725 34.079322815 31.40327263 10.65035725 34.19355392 31.59085274
+		 10.80565929 34.042640686 31.55418205 10.65035725 34.079322815 31.40327263 -10.65035725 15.040572166 25.88101959
+		 -10.80565929 15.19148254 25.91769409 -10.65035725 15.22815704 25.76678467 10.80565929 15.19148254 25.91769409
+		 10.65035725 15.040572166 25.88101959 10.65035725 15.22815704 25.76678467 -10.30015659 33.46055222 31.81469345
+		 10.30015659 33.46055222 31.81469345 10.30015659 15.60631084 26.42276382 -10.30015659 15.60631084 26.42276382
 		 3.79521823 8.33062553 21.53953743 3.42853332 9.11261177 22.011367798 2.24696684 10.80531693 23.031930923
 		 -3.79521823 8.33062553 21.53953743 -2.24696684 10.80531693 23.031930923 -3.42853332 9.11261177 22.011367798
 		 3.42853379 10.50170326 22.12090302 3.42853379 9.41245461 21.49202538 3.79570007 9.41245461 21.49202538
@@ -63651,11 +63610,11 @@ createNode mesh -n "ScannerV3Shape" -p "ScannerV3";
 		 0 15.34176064 12.30666828 -1.21240437 15.1941185 12.97767162 0 15.33969307 12.97767067
 		 0 13.27017403 12.97767067 -1.29810953 13.27017403 12.97767067 0 13.27017403 12.97767067
 		 0 13.14606285 9.6962204 -1.3053571 13.1466217 9.69908905 -1.29810953 13.27017403 12.97767067
-		 -0.41185427 14.48004341 21.43155479 0 14.48004341 21.43155289 0 14.48004723 17.21773148
-		 -0.94629377 14.48004723 17.16585541 -0.41185427 14.48004341 21.43155479 -0.94629377 14.48004723 17.16585541
+		 -0.94629425 14.48004341 21.43155479 0 14.48004341 21.43155289 0 14.48004723 17.21773148
+		 -0.94629377 14.48004723 17.16585541 -0.94629425 14.48004341 21.43155479 -0.94629377 14.48004723 17.16585541
 		 -1.26327372 14.043701172 17.47795486 -1.2638495 14.042989731 22.0043678284 -1.67916453 11.54080582 6.049934387
 		 0 11.54024315 6.037880898 0 10.83603477 6.97072792 -1.68743122 10.83603668 6.97072792
-		 -0.41185427 14.48004341 21.43155479 -1.2638495 14.042989731 22.0043678284 0 14.042989731 22.0043678284
+		 -0.94629425 14.48004341 21.43155479 -1.2638495 14.042989731 22.0043678284 0 14.042989731 22.0043678284
 		 0 14.48004341 21.43155289 0.95829588 12.83798027 1.039988518 1.26025069 12.36627197 0.82538033
 		 1.26025069 12.36627197 0.82538033 1.23705304 12.33547211 0.73285007 -0.95829588 12.83798027 1.039988518
 		 -1.26025069 12.36627197 0.82538033 -1.26025069 12.36627197 0.82538033 -1.23705304 12.33547211 0.73285007
@@ -63837,16 +63796,16 @@ createNode mesh -n "ScannerV3Shape" -p "ScannerV3";
 		 0.72403437 15.81785011 12.57975101 0.65396786 15.63986397 12.24090099 0.66218317 15.82085419 12.71435547
 		 0.65578908 15.66362762 12.69863605 0.51564616 15.64110947 12.28948879 0 15.66457939 12.79153061
 		 0 15.83850098 12.79176331 0 15.64134979 12.30667305 1.47551847 13.96150208 17.39722824
-		 1.26327372 14.043701172 17.47795486 1.2638495 14.042989731 22.0043678284 0.64404124 13.95998573 23.1376152
-		 0.55007094 14.042989731 23.15828323 0 14.042989731 22.0043678284 1.47001588 12.97350121 24.99263573
-		 0 14.042989731 23.15828323 1.31026435 13.045017242 25.034862518 0.27305907 13.35577965 24.45050812
+		 1.26327372 14.043701172 17.47795486 1.2638495 14.042989731 22.0043678284 1.47977662 13.95998573 23.1376152
+		 1.26386619 14.042989731 23.15828323 0 14.042989731 22.0043678284 1.47001588 12.97350121 24.99263573
+		 0 14.042989731 23.15828323 1.31026435 13.045017242 25.034862518 0.62739241 13.35577965 24.45050812
 		 0 13.43582916 24.29998207 0 13.39887047 24.34001541;
 	setAttr ".vt[664:829]" 1.22056007 13.045017242 25.034862518 1.30984104 12.89806366 25.12302208
 		 1.46978939 12.89442444 25.040073395 1.31012654 12.1789608 25.12224007 1.47007287 12.1789608 25.039302826
 		 1.26645184 12.1789608 25.12224007 1.26764095 12.89806366 25.12302208 1.2165606 12.1789608 25.10992241
-		 1.17998362 13.01212883 25.039997101 1.21774471 12.89626884 25.1106987 0.2626493 13.31982613 24.48270988
+		 1.17998362 13.01212883 25.039997101 1.21774471 12.89626884 25.1106987 0.60347456 13.31982613 24.48270988
 		 0.60938102 12.1789608 24.48789406 0 12.1789608 24.34199524 1.47338831 13.29500008 24.3621254
-		 0.64404124 13.95998573 23.1376152 1.47001588 12.97350121 24.99263573 1.47551847 13.96150208 17.39722824
+		 1.47977662 13.95998573 23.1376152 1.47001588 12.97350121 24.99263573 1.47551847 13.96150208 17.39722824
 		 1.47966707 13.43778229 17.90076447 1.47988045 13.70376396 17.60279083 1.47952843 13.30459785 18.26368523
 		 -1.96058202 11.19577217 12.70249081 -1.96058238 10.61239243 6.98189068 -2.24745011 10.35421371 6.98188972
 		 -2.24744987 10.93427658 12.70249081 -2.24744987 11.39213753 17.10922432 -1.9605819 11.65566063 17.12884331
@@ -63901,15 +63860,15 @@ createNode mesh -n "ScannerV3Shape" -p "ScannerV3";
 		 -0.65396786 15.63986397 12.24090099 -0.66218317 15.82085419 12.71435547 -0.65578908 15.66362762 12.69863605
 		 -0.51564616 15.64110947 12.28948879 0 15.66457939 12.79153061 0 15.83850098 12.79176331
 		 0 15.64134979 12.30667305 -1.2638495 14.042989731 22.0043678284 -1.26327372 14.043701172 17.47795486
-		 -1.47551847 13.96150208 17.39722824 -0.64404124 13.95998573 23.1376152 -0.55007094 14.042989731 23.15828323
+		 -1.47551847 13.96150208 17.39722824 -1.47977662 13.95998573 23.1376152 -1.26386619 14.042989731 23.15828323
 		 0 14.042989731 22.0043678284 -1.47001588 12.97350121 24.99263573 0 14.042989731 23.15828323
-		 -1.31026435 13.045017242 25.034862518 -0.27305907 13.35577965 24.45050812 0 13.43582916 24.29998207
+		 -1.31026435 13.045017242 25.034862518 -0.62739241 13.35577965 24.45050812 0 13.43582916 24.29998207
 		 0 13.39887047 24.34001541 -1.22056007 13.045017242 25.034862518 -1.30984104 12.89806366 25.12302208
 		 -1.46978939 12.89442444 25.040073395 -1.47007287 12.1789608 25.039302826 -1.31012654 12.1789608 25.12224007
 		 -1.26645184 12.1789608 25.12224007 -1.26764095 12.89806366 25.12302208 -1.2165606 12.1789608 25.10992241
-		 -0.2626493 13.31982613 24.48270988 0 12.1789608 24.34199524 -0.60938102 12.1789608 24.48789406
+		 -0.60347456 13.31982613 24.48270988 0 12.1789608 24.34199524 -0.60938102 12.1789608 24.48789406
 		 -1.17998362 13.01212883 25.039997101 -1.21774471 12.89626884 25.1106987 -1.47338831 13.29500008 24.3621254
-		 -1.47001588 12.97350121 24.99263573 -0.64404124 13.95998573 23.1376152 -1.47551847 13.96150208 17.39722824
+		 -1.47001588 12.97350121 24.99263573 -1.47977662 13.95998573 23.1376152 -1.47551847 13.96150208 17.39722824
 		 -1.47966707 13.43778229 17.90076447 -1.47952843 13.30459785 18.26368523 -1.47988045 13.70376396 17.60279083
 		 -1.68743122 10.83603668 6.97072792 0 10.83603477 6.97072792 0 10.3302269 6.98188877
 		 -1.72531259 10.30319977 6.98188972 -1.96058238 10.61239243 6.98189068 -1.83416414 10.83603668 6.97072792
@@ -89616,62 +89575,19 @@ createNode mesh -n "ScannerV3Shape" -p "ScannerV3";
 	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
 	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".vcs" 2;
-createNode transform -n "ScannerBeam";
-	rename -uid "097C6EDC-4DFD-3DFD-739D-CC8257CDA21E";
-	setAttr ".v" no;
-	setAttr ".t" -type "double3" -6.8398466974291346e-15 40.510397917839221 6.7678161559066012 ;
-	setAttr ".r" -type "double3" 89.999999999999957 179.99999999999994 0 ;
-	setAttr ".s" -type "double3" 103.96709054945838 52.297668606761931 111.92121634115051 ;
-	setAttr ".rp" -type "double3" 5.1569482747598385e-30 1.0886639216520624e-14 26.148833650266685 ;
-	setAttr ".rpt" -type "double3" 6.8398466974291196e-15 -25.257833750129336 -32.916649806173375 ;
-	setAttr ".sp" -type "double3" 9.8607613152626476e-32 2.0816681711721685e-16 0.49999998751159835 ;
-	setAttr ".spt" -type "double3" 5.0583406616072121e-30 1.0678472399403407e-14 25.648833662755077 ;
-createNode mesh -n "ScannerBeamShape" -p "|ScannerBeam";
-	rename -uid "E3427EF7-4EFD-D3A7-D9D6-6ABF46130198";
+createNode mesh -n "ScannerV3ShapeOrig" -p "ScannerV3";
+	rename -uid "9BB8418B-46B2-2BF0-A963-3D9874CFD10C";
 	setAttr -k off ".v";
+	setAttr ".io" yes;
 	setAttr ".vir" yes;
 	setAttr ".vif" yes;
-	setAttr ".pv" -type "double2" 0.5 0 ;
 	setAttr ".uvst[0].uvsn" -type "string" "map1";
-	setAttr -s 14 ".uvst[0].uvsp[0:13]" -type "float2" 0.38911688 0 0.61088312
-		 0 1 0.99999952 0 1 0.83333331 0.99999958 0.5739221 0 0.66666669 0.99999964 0.53696108
-		 0 0.5 0.99999976 0.5 0 0.33333331 0.99999982 0.46303895 0 0.16666666 0.99999988 0.4260779
-		 0;
 	setAttr ".cuvs" -type "string" "map1";
 	setAttr ".dcc" -type "string" "Ambient+Diffuse";
+	setAttr ".clst[0].clsn" -type "string" "colorSet0";
 	setAttr ".covm[0]"  0 1 1;
 	setAttr ".cdvm[0]"  0 1 1;
-	setAttr -s 14 ".pt[0:13]" -type "float3"  -0.19822381 5.0172938e-18 
-		-0.00092305383 0.19822381 5.0172938e-18 -0.00092305383 0 -4.3854919e-15 0.11179768 
-		0 -4.3854919e-15 0.11179768 0 -3.9651903e-15 0.034472853 0.13214923 5.0172938e-18 
-		-0.00092305383 0 -3.6626331e-15 -0.021189459 0.066074617 6.6852075e-18 -0.0012299068 
-		1.4889251e-23 -3.5527137e-15 -0.041412305 -3.3298202e-09 6.6852075e-18 -0.0012299068 
-		0 -3.6626331e-15 -0.021189459 -0.066074632 6.6852075e-18 -0.0012299068 0 -3.9651903e-15 
-		0.034472853 -0.13214926 5.0172938e-18 -0.00092305383;
-	setAttr -s 14 ".vt[0:13]"  -0.11088309 0 0.5 0.11088309 0 0.5 -0.5 1.1920929e-07 -0.49999994
-		 0.5 1.1920929e-07 -0.49999994 0.33333331 1.1920929e-07 -0.49999994 0.073922053 0 0.5
-		 0.16666666 1.1920929e-07 -0.49999994 0.036961026 0 0.5 -7.4505806e-09 1.1920929e-07 -0.49999994
-		 -1.8626451e-09 0 0.5 -0.16666669 1.1920929e-07 -0.49999994 -0.036961034 0 0.5 -0.33333334 1.1920929e-07 -0.49999994
-		 -0.07392206 0 0.5;
-	setAttr -s 19 ".ed[0:18]"  0 13 0 0 2 0 1 3 0 2 12 0 4 3 0 5 1 0 4 5 1
-		 6 4 0 7 5 0 6 7 1 8 6 0 9 7 0 8 9 1 10 8 0 11 9 0 10 11 1 12 10 0 13 11 0 12 13 1;
-	setAttr -s 6 -ch 24 ".fc[0:5]" -type "polyFaces" 
-		f 4 5 2 -5 6
-		mu 0 4 5 1 2 4
-		f 4 8 -7 -8 9
-		mu 0 4 7 5 4 6
-		f 4 11 -10 -11 12
-		mu 0 4 9 7 6 8
-		f 4 14 -13 -14 15
-		mu 0 4 11 9 8 10
-		f 4 17 -16 -17 18
-		mu 0 4 13 11 10 12
-		f 4 0 -19 -4 -2
-		mu 0 4 0 13 12 3;
-	setAttr ".cd" -type "dataPolyComponent" Index_Data Edge 0 ;
-	setAttr ".cvd" -type "dataPolyComponent" Index_Data Vertex 0 ;
-	setAttr ".pd[0]" -type "dataPolyComponent" Index_Data UV 0 ;
-	setAttr ".hfd" -type "dataPolyComponent" Index_Data Face 0 ;
+	setAttr ".vcs" 2;
 createNode phong -n "MagGun_MatA_Inst3";
 	rename -uid "91D96047-4741-6F57-3639-F4BB217A3FF5";
 	setAttr ".dc" 1;
@@ -89681,9 +89597,9 @@ createNode phong -n "MagGun_MatA_Inst3";
 createNode shadingEngine -n "RifleSG";
 	rename -uid "EEC25731-4CEE-5B87-5FD9-ABAF8B3A3D92";
 	setAttr ".ihi" 0;
-	setAttr -s 3 ".dsm";
+	setAttr -s 2 ".dsm";
 	setAttr ".ro" yes;
-	setAttr -s 3 ".gn";
+	setAttr -s 2 ".gn";
 createNode materialInfo -n "materialInfo1";
 	rename -uid "112A9676-4466-799F-79FA-00AC2864EF11";
 createNode phong -n "MagGun_MatB_Inst2";
@@ -89695,9 +89611,9 @@ createNode phong -n "MagGun_MatB_Inst2";
 createNode shadingEngine -n "RifleSG1";
 	rename -uid "D6204692-4430-ECDB-EBDB-9E8A81CDD1B7";
 	setAttr ".ihi" 0;
-	setAttr -s 3 ".dsm";
+	setAttr -s 2 ".dsm";
 	setAttr ".ro" yes;
-	setAttr -s 3 ".gn";
+	setAttr -s 2 ".gn";
 createNode materialInfo -n "materialInfo2";
 	rename -uid "8E1C24DA-4FB9-555B-42C3-63B22D7F0965";
 createNode shadingEngine -n "RifleSG2";
@@ -89707,19 +89623,19 @@ createNode shadingEngine -n "RifleSG2";
 createNode materialInfo -n "materialInfo3";
 	rename -uid "FA2FBFA1-4E15-9D43-27CC-A881FAF39843";
 createNode lightLinker -s -n "lightLinker1";
-	rename -uid "3491B4FC-49F4-2CA3-FD31-E1BE8B5BDE1F";
-	setAttr -s 6 ".lnk";
-	setAttr -s 6 ".slnk";
+	rename -uid "5751DBE2-425A-54AB-8474-0798581951BE";
+	setAttr -s 10 ".lnk";
+	setAttr -s 10 ".slnk";
 createNode shapeEditorManager -n "shapeEditorManager";
-	rename -uid "B12338CA-4257-C0EE-15E1-B89F2AC69292";
+	rename -uid "AB43DE59-4916-B0DC-BEE3-8483F058A1AE";
 createNode poseInterpolatorManager -n "poseInterpolatorManager";
-	rename -uid "40AF8676-4D1A-0A31-E83A-378D53C1C051";
+	rename -uid "BE32BE6C-427A-B43F-3015-658DA4BF04CB";
 createNode displayLayerManager -n "layerManager";
-	rename -uid "E5539B7A-418A-1EB3-B3D4-10B026254D7A";
+	rename -uid "FFB19994-4D39-AE79-DAE1-70B43E6A4A12";
 createNode displayLayer -n "defaultLayer";
 	rename -uid "7645FE8A-4C5D-A1C2-CF27-40BF5AA795E2";
 createNode renderLayerManager -n "renderLayerManager";
-	rename -uid "3ED74D5F-4C9D-B5AD-D7AF-3482553AC8B7";
+	rename -uid "58A65C8A-4C1E-3F2E-6549-69B650A2D078";
 createNode renderLayer -n "defaultRenderLayer";
 	rename -uid "953D3C0E-4B1F-3367-993D-6B98AB3AA66B";
 	setAttr ".g" yes;
@@ -89770,11 +89686,6 @@ createNode script -n "sceneConfigurationScriptNode";
 	rename -uid "F0DCD444-4DED-5BAF-2EE0-568114A01D3C";
 	setAttr ".b" -type "string" "playbackOptions -min 0 -max 30 -ast 0 -aet 30 ";
 	setAttr ".st" 6;
-createNode nodeGraphEditorInfo -n "hyperShadePrimaryNodeEditorSavedTabsInfo";
-	rename -uid "00FD19AF-4F43-9599-5E90-CB860A828707";
-	setAttr ".tgi[0].tn" -type "string" "Untitled_1";
-	setAttr ".tgi[0].vl" -type "double2" -330.95236780151544 -323.80951094248991 ;
-	setAttr ".tgi[0].vh" -type "double2" 317.85713022663526 338.09522466054096 ;
 createNode groupId -n "groupId28";
 	rename -uid "C30BF373-4E47-5E40-F524-9B8BDDC67814";
 	setAttr ".ihi" 0;
@@ -89784,17 +89695,133 @@ createNode groupId -n "groupId29";
 createNode groupId -n "groupId30";
 	rename -uid "E542E885-4FE4-5353-52D2-0B87CA39D03A";
 	setAttr ".ihi" 0;
+createNode lambert -n "M_ScannerBeam";
+	rename -uid "01B0D8F4-4416-0120-79FC-BAB6F3542EA8";
+createNode shadingEngine -n "lambert2SG";
+	rename -uid "88A78A49-428E-1CBC-9A2B-CD9ACF7A0F10";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "materialInfo4";
+	rename -uid "2E9676C0-4960-0E92-4CB1-328F1F49DC4B";
 createNode groupId -n "groupId31";
-	rename -uid "DA67532C-4E7D-9446-C741-C482E95114FD";
+	rename -uid "BCC7E7DC-4947-1614-4C89-C9B71893A234";
 	setAttr ".ihi" 0;
 createNode groupId -n "groupId32";
-	rename -uid "F86FDFF3-4BA3-9969-8329-12A9E6FEB10D";
+	rename -uid "7904AD37-4A1D-20DE-568D-57B84B99629E";
 	setAttr ".ihi" 0;
 createNode groupId -n "groupId33";
-	rename -uid "F630F352-4CA6-259A-BE21-F391C3552972";
+	rename -uid "5CA19FF8-4B9F-CD89-3EFE-62A5BCCF08C8";
 	setAttr ".ihi" 0;
+createNode lambert -n "M_Screen";
+	rename -uid "39F72BF7-460A-72D9-ACAD-459325058CAE";
+createNode shadingEngine -n "lambert3SG";
+	rename -uid "ECA2456F-4243-580C-8A8A-6CAA834B5168";
+	setAttr ".ihi" 0;
+	setAttr -s 2 ".dsm";
+	setAttr ".ro" yes;
+	setAttr -s 2 ".gn";
+createNode materialInfo -n "materialInfo5";
+	rename -uid "F8FF5195-4A9D-570B-C6AD-33B93536DCF1";
+createNode shadingEngine -n "pasted__lambert3SG";
+	rename -uid "504DB5F7-4078-1212-9561-32ABB764C343";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "pasted__materialInfo5";
+	rename -uid "1C102A5F-454A-118A-59CA-BFA970BEC9BD";
+createNode lambert -n "pasted__M_Screen";
+	rename -uid "9032398A-4BCC-5905-19FD-3A9FBD118ABE";
+createNode shadingEngine -n "pasted__RifleSG";
+	rename -uid "5C137290-4443-A6A5-D1FD-D39D1B1C1C05";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "pasted__materialInfo1";
+	rename -uid "BDD2670B-4B53-3FC7-A423-B780B9C5EF43";
+createNode phong -n "pasted__MagGun_MatA_Inst3";
+	rename -uid "28E97844-49A8-BFF3-FE9A-978ABA33FAC5";
+	setAttr ".dc" 1;
+	setAttr ".c" -type "float3" 0.2158605 0.2158605 0.2158605 ;
+	setAttr ".sc" -type "float3" 0.2 0.2 0.2 ;
+	setAttr ".rfl" 1;
+createNode shadingEngine -n "pasted__RifleSG1";
+	rename -uid "17FD3441-4B41-4508-5DFE-709A44F1C0AA";
+	setAttr ".ihi" 0;
+	setAttr ".ro" yes;
+createNode materialInfo -n "pasted__materialInfo2";
+	rename -uid "E715A381-41E1-A9B1-6033-D4A31894E23D";
+createNode phong -n "pasted__MagGun_MatB_Inst2";
+	rename -uid "4C1B1527-483B-6412-4D93-18AE3D674D6C";
+	setAttr ".dc" 1;
+	setAttr ".c" -type "float3" 0.2158605 0.2158605 0.2158605 ;
+	setAttr ".sc" -type "float3" 0.2 0.2 0.2 ;
+	setAttr ".rfl" 1;
+createNode nodeGraphEditorInfo -n "hyperShadePrimaryNodeEditorSavedTabsInfo";
+	rename -uid "01703BD1-453E-C6EC-6487-A2B4D5D8320F";
+	setAttr ".tgi[0].tn" -type "string" "Untitled_1";
+	setAttr ".tgi[0].vl" -type "double2" -330.95236780151544 -323.80951094248991 ;
+	setAttr ".tgi[0].vh" -type "double2" 317.85713022663526 338.09522466054096 ;
+	setAttr -s 2 ".tgi[0].ni";
+	setAttr ".tgi[0].ni[0].x" 54.285713195800781;
+	setAttr ".tgi[0].ni[0].y" 150;
+	setAttr ".tgi[0].ni[0].nvs" 1923;
+	setAttr ".tgi[0].ni[1].x" -252.85714721679688;
+	setAttr ".tgi[0].ni[1].y" 150;
+	setAttr ".tgi[0].ni[1].nvs" 1923;
+createNode polyPlanarProj -n "polyPlanarProj1";
+	rename -uid "4678714D-4337-AC1D-C4A6-4AB74F289E2D";
+	setAttr ".uopa" yes;
+	setAttr ".ics" -type "componentList" 1 "f[0]";
+	setAttr ".ix" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
+	setAttr ".ws" yes;
+	setAttr ".pc" -type "double3" 0 21.878005504608154 26.408334732055664 ;
+	setAttr ".ro" -type "double3" -90 0 0 ;
+	setAttr ".ps" -type "double2" 17.699626922607422 4.2506790161132813 ;
+	setAttr ".cam" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
+createNode groupId -n "groupId34";
+	rename -uid "2FD7A613-4D09-CE76-CDFC-6C8B54CA3599";
+	setAttr ".ihi" 0;
+createNode groupParts -n "groupParts1";
+	rename -uid "A967D63A-4058-B1F9-7480-B784CA9FA8E4";
+	setAttr ".ihi" 0;
+	setAttr ".ic" -type "componentList" 1 "f[0]";
+createNode groupId -n "groupId35";
+	rename -uid "05CC812D-4E18-4C80-D5D9-A5B268C2F388";
+	setAttr ".ihi" 0;
+createNode groupParts -n "groupParts2";
+	rename -uid "2C240E56-43BD-373C-DE71-BFB1DBB00B6D";
+	setAttr ".ihi" 0;
+	setAttr ".ic" -type "componentList" 1 "f[34:2097]";
+createNode groupId -n "groupId36";
+	rename -uid "1C2FEA32-478D-7988-1911-2F893613C4B3";
+	setAttr ".ihi" 0;
+createNode groupParts -n "groupParts3";
+	rename -uid "3D0E70FD-4615-9D0F-AE52-E98E96F45686";
+	setAttr ".ihi" 0;
+	setAttr ".ic" -type "componentList" 2 "f[1:33]" "f[2098:7419]";
+createNode polyFlipUV -n "polyFlipUV1";
+	rename -uid "4B033BD9-4223-D123-14A1-50B3D769799C";
+	setAttr ".uopa" yes;
+	setAttr ".ics" -type "componentList" 1 "f[0]";
+	setAttr ".ix" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
+	setAttr ".up" yes;
+	setAttr ".pu" 0.4999999255;
+	setAttr ".pv" 0.49999976159999998;
+createNode polyFlipUV -n "polyFlipUV2";
+	rename -uid "12693F30-4A6E-45E1-2481-319BC083A383";
+	setAttr ".uopa" yes;
+	setAttr ".ics" -type "componentList" 1 "f[0]";
+	setAttr ".ix" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
+	setAttr ".ft" 1;
+	setAttr ".up" yes;
+	setAttr ".pu" 0.49999994040000001;
+	setAttr ".pv" 0.49999976159999998;
+createNode polyTweakUV -n "polyTweakUV1";
+	rename -uid "E6D3BB28-4D11-D08E-F05B-A59898388CBA";
+	setAttr ".uopa" yes;
+	setAttr -s 3 ".uvtk";
+	setAttr ".uvtk[5779]" -type "float2" 0 0.45200402 ;
+	setAttr ".uvtk[5780]" -type "float2" 0 0.45200402 ;
 createNode skinCluster -n "skinCluster1";
-	rename -uid "1250E9BE-4454-2348-9D5D-D1B90AF8C612";
+	rename -uid "21E1D02C-491E-3541-DCCC-20BBCF8222E6";
 	setAttr -s 5763 ".wl";
 	setAttr ".wl[0:499].w"
 		1 0 1
@@ -95572,10 +95599,10 @@ createNode skinCluster -n "skinCluster1";
 		1 0 1
 		1 0 1;
 	setAttr -s 2 ".pm";
-	setAttr ".pm[0]" -type "matrix" 1 0 0 0 0 0.99999999999992062 3.9947416341500679e-07 0
-		 0 -3.9947416341500679e-07 0.99999999999992062 0 0 0 0 1;
-	setAttr ".pm[1]" -type "matrix" 1 0 0 0 0 1 -1.5881867761018136e-22 0 0 1.5881867761018136e-22 1 0
-		 0 -8.1881654967804121 -34.36196149433934 1;
+	setAttr ".pm[0]" -type "matrix" 1 -0 0 -0 -0 0.99999999999992062 3.9947416341500679e-07 0
+		 0 -3.9947416341500679e-07 0.99999999999992062 -0 -0 0 -0 1;
+	setAttr ".pm[1]" -type "matrix" 1 -0 0 -0 -0 1 -1.5881867761018136e-22 0 0 1.5881867761018136e-22 1 -0
+		 -0 -8.1881654967804156 -48.434896403362906 1;
 	setAttr ".gm" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
 	setAttr -s 2 ".ma";
 	setAttr -s 2 ".dpf[0:1]"  4 4;
@@ -95586,193 +95613,111 @@ createNode skinCluster -n "skinCluster1";
 	setAttr ".ucm" yes;
 	setAttr -s 2 ".ifcl";
 	setAttr -s 2 ".ifcl";
-createNode groupId -n "groupId34";
-	rename -uid "5C05B7BB-486C-6FA5-D743-89AA4755DE3E";
-	setAttr ".ihi" 0;
-createNode groupParts -n "groupParts1";
-	rename -uid "2AB5BDA8-434B-0EEF-6168-81B9D67FCB38";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "f[0]";
-createNode groupId -n "groupId35";
-	rename -uid "AAA81B9A-470A-315B-C055-52A4F798C01B";
-	setAttr ".ihi" 0;
-createNode groupParts -n "groupParts2";
-	rename -uid "DEC007A0-43B7-568F-B625-0AAA3A512EB0";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "f[34:2097]";
-createNode groupId -n "groupId36";
-	rename -uid "3BCE16A2-432B-EEAC-415B-73994AF5CE32";
-	setAttr ".ihi" 0;
-createNode groupParts -n "groupParts3";
-	rename -uid "13496167-4D6F-470D-E5A3-F5AC2A0D3F80";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 2 "f[1:33]" "f[2098:7419]";
 createNode tweak -n "tweak1";
-	rename -uid "62EEDC32-4F9A-6D69-027D-988309166AE7";
+	rename -uid "274524EB-414A-BA42-1261-B88730CB7C78";
+	setAttr -s 19 ".vl[0].vt";
+	setAttr ".vl[0].vt[0]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[1]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[10]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[11]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[12]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[13]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[14]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[15]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[16]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[17]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[18]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[19]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[20]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[21]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[28]" -type "float3" 0 -4.1573005 -0.93894649 ;
+	setAttr ".vl[0].vt[29]" -type "float3" 0 -4.1573005 -0.93894649 ;
 createNode objectSet -n "skinCluster1Set";
-	rename -uid "05FE2907-4BC8-5986-2A4F-FD8A7BC6DC57";
+	rename -uid "019EC8E2-47DB-4140-D1A6-EF82C7DEA825";
 	setAttr ".ihi" 0;
 	setAttr ".vo" yes;
 createNode groupId -n "skinCluster1GroupId";
-	rename -uid "CD1CA38B-4AAA-9105-3CE5-C88D7CD0BDAB";
+	rename -uid "81A66AFC-431F-DAF8-9F87-329B9B6307B0";
 	setAttr ".ihi" 0;
 createNode groupParts -n "skinCluster1GroupParts";
-	rename -uid "8FA45AF5-417F-6F6C-1426-64B19F8D4FB5";
+	rename -uid "74A25322-4469-5C6D-30B0-579652920075";
 	setAttr ".ihi" 0;
 	setAttr ".ic" -type "componentList" 1 "vtx[*]";
 createNode objectSet -n "tweakSet1";
-	rename -uid "2C78B1E1-4584-97A5-4901-E791B735BD9B";
+	rename -uid "33F0488E-4679-E2BE-5C23-38AA93C2BDC5";
 	setAttr ".ihi" 0;
 	setAttr ".vo" yes;
 createNode groupId -n "groupId38";
-	rename -uid "248A7899-4E02-B8D9-3B0B-2192F44780E8";
+	rename -uid "92509095-4E03-7D9A-018D-568CB6AAA1FE";
 	setAttr ".ihi" 0;
 createNode groupParts -n "groupParts5";
-	rename -uid "24F1FB5E-4B61-3DDF-6207-31BFA448D1B0";
+	rename -uid "A558D467-479C-6553-3AC7-FB810DEFDDE9";
 	setAttr ".ihi" 0;
 	setAttr ".ic" -type "componentList" 1 "vtx[*]";
 createNode dagPose -n "bindPose1";
-	rename -uid "5A30C148-4807-01F4-C995-87A3EFEBD12C";
+	rename -uid "A934EDF3-4345-324C-511F-67B1F298DA77";
 	setAttr -s 2 ".wm";
 	setAttr -s 2 ".xm";
 	setAttr ".xm[0]" -type "matrix" "xform" 1 0.99999999999999978 0.99999999999999978 1.570795927320733
 		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 -0.70710678118654757 0 0 0.70710678118654757 1
 		 1 1 no;
-	setAttr ".xm[1]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 8.188151770063941 34.361964765297174 0
+	setAttr ".xm[1]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 8.1881461482900431 48.43489967431961 0
 		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1.9973708170750731e-07 0 0 0.99999999999998002 1
 		 1.0000000000000002 1.0000000000000002 yes;
 	setAttr -s 2 ".m";
 	setAttr -s 2 ".p";
 	setAttr ".bp" yes;
-createNode skinCluster -n "skinCluster2";
-	rename -uid "2849F3EC-48B7-8C74-E7B2-D69C70B6BE0B";
-	setAttr -s 14 ".wl";
-	setAttr ".wl[0:13].w"
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1;
-	setAttr -s 2 ".pm";
-	setAttr ".pm[0]" -type "matrix" 1 0 0 0 0 0.99999999999992062 3.9947416341500679e-07 0
-		 0 -3.9947416341500679e-07 0.99999999999992062 0 0 0 0 1;
-	setAttr ".pm[1]" -type "matrix" 1 0 0 0 0 1 -1.5881867761018136e-22 0 0 1.5881867761018136e-22 1 0
-		 0 -8.1881654967804121 -34.36196149433934 1;
-	setAttr ".gm" -type "matrix" -3.6936530474015106e-13 103.96709054945838 -1.050736226508435e-13 0
-		 52.297668606761931 1.9160485021076297e-13 0 0 4.1937879217250433e-28 -1.1311240499568574e-13 -111.92121634115051 0
-		 -1.0886639216520834e-14 8.1881656646729084 90.322568137604264 1;
-	setAttr -s 2 ".ma";
-	setAttr -s 2 ".dpf[0:1]"  4 4;
-	setAttr -s 2 ".lw";
-	setAttr -s 2 ".lw";
-	setAttr ".mmi" yes;
-	setAttr ".mi" 5;
-	setAttr ".ucm" yes;
-	setAttr -s 2 ".ifcl";
-	setAttr -s 2 ".ifcl";
-createNode tweak -n "tweak2";
-	rename -uid "BA1558AE-406A-9969-ED70-83B40A8A6528";
-createNode objectSet -n "skinCluster2Set";
-	rename -uid "C6916FB0-4F63-8D67-9806-B89D914D1AB4";
-	setAttr ".ihi" 0;
-	setAttr ".vo" yes;
-createNode groupId -n "skinCluster2GroupId";
-	rename -uid "11903E07-496C-F0C4-3283-00945F7A84FA";
-	setAttr ".ihi" 0;
-createNode groupParts -n "skinCluster2GroupParts";
-	rename -uid "17E37F46-4BCE-706A-2AE4-A79D7C2B15B4";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "vtx[*]";
-createNode objectSet -n "tweakSet2";
-	rename -uid "1DA8651C-47EB-9AE0-41A6-FD8B1BCA415B";
-	setAttr ".ihi" 0;
-	setAttr ".vo" yes;
-createNode groupId -n "groupId40";
-	rename -uid "8F6F0D6A-4E08-43D2-D2B0-148044F71BC8";
-	setAttr ".ihi" 0;
-createNode groupParts -n "groupParts7";
-	rename -uid "666486FD-4403-0900-75AC-5F837ED3A9A9";
-	setAttr ".ihi" 0;
-	setAttr ".ic" -type "componentList" 1 "vtx[*]";
-createNode lambert -n "M_ScannerBeam";
-	rename -uid "01B0D8F4-4416-0120-79FC-BAB6F3542EA8";
-createNode shadingEngine -n "lambert2SG";
-	rename -uid "88A78A49-428E-1CBC-9A2B-CD9ACF7A0F10";
-	setAttr ".ihi" 0;
-	setAttr ".ro" yes;
-createNode materialInfo -n "materialInfo4";
-	rename -uid "2E9676C0-4960-0E92-4CB1-328F1F49DC4B";
 select -ne :time1;
 	setAttr ".o" 0;
 select -ne :renderPartition;
-	setAttr -s 6 ".st";
+	setAttr -s 10 ".st";
 select -ne :renderGlobalsList1;
 select -ne :defaultShaderList1;
-	setAttr -s 8 ".s";
+	setAttr -s 12 ".s";
 select -ne :postProcessList1;
 	setAttr -s 2 ".p";
 select -ne :defaultRenderingList1;
-select -ne :initialShadingGroup;
-	setAttr -s 4 ".dsm";
-	setAttr -s 3 ".gn";
 select -ne :defaultRenderGlobals;
 	addAttr -ci true -h true -sn "dss" -ln "defaultSurfaceShader" -dt "string";
 	setAttr ".dss" -type "string" "lambert1";
-connectAttr "skinCluster1.og[0]" "ScannerV1Shape.i";
-connectAttr "groupId34.id" "ScannerV1Shape.iog.og[0].gid";
-connectAttr ":initialShadingGroup.mwc" "ScannerV1Shape.iog.og[0].gco";
-connectAttr "groupId35.id" "ScannerV1Shape.iog.og[1].gid";
+connectAttr "groupId31.id" "ScannerV1Shape.iog.og[0].gid";
+connectAttr "lambert3SG.mwc" "ScannerV1Shape.iog.og[0].gco";
+connectAttr "groupId32.id" "ScannerV1Shape.iog.og[1].gid";
 connectAttr "RifleSG.mwc" "ScannerV1Shape.iog.og[1].gco";
-connectAttr "groupId36.id" "ScannerV1Shape.iog.og[2].gid";
+connectAttr "groupId33.id" "ScannerV1Shape.iog.og[2].gid";
 connectAttr "RifleSG1.mwc" "ScannerV1Shape.iog.og[2].gco";
-connectAttr "skinCluster1GroupId.id" "ScannerV1Shape.iog.og[9].gid";
-connectAttr "skinCluster1Set.mwc" "ScannerV1Shape.iog.og[9].gco";
-connectAttr "groupId38.id" "ScannerV1Shape.iog.og[10].gid";
-connectAttr "tweakSet1.mwc" "ScannerV1Shape.iog.og[10].gco";
-connectAttr "tweak1.vl[0].vt[0]" "ScannerV1Shape.twl";
-connectAttr "skinCluster2GroupId.id" "ScannerBeam1Shape.iog.og[0].gid";
-connectAttr "skinCluster2Set.mwc" "ScannerBeam1Shape.iog.og[0].gco";
-connectAttr "groupId40.id" "ScannerBeam1Shape.iog.og[1].gid";
-connectAttr "tweakSet2.mwc" "ScannerBeam1Shape.iog.og[1].gco";
-connectAttr "skinCluster2.og[0]" "ScannerBeam1Shape.i";
-connectAttr "tweak2.vl[0].vt[0]" "ScannerBeam1Shape.twl";
-connectAttr "ScannerRoot.s" "|ScannerRoot|ScannerBeam.is";
+connectAttr "ScannerRoot.s" "ScannerBeam.is";
 connectAttr "groupId28.id" "ScannerV2Shape.iog.og[0].gid";
-connectAttr ":initialShadingGroup.mwc" "ScannerV2Shape.iog.og[0].gco";
+connectAttr "lambert3SG.mwc" "ScannerV2Shape.iog.og[0].gco";
 connectAttr "groupId29.id" "ScannerV2Shape.iog.og[1].gid";
 connectAttr "RifleSG.mwc" "ScannerV2Shape.iog.og[1].gco";
 connectAttr "groupId30.id" "ScannerV2Shape.iog.og[2].gid";
 connectAttr "RifleSG1.mwc" "ScannerV2Shape.iog.og[2].gco";
-connectAttr "groupId31.id" "ScannerV3Shape.iog.og[0].gid";
-connectAttr ":initialShadingGroup.mwc" "ScannerV3Shape.iog.og[0].gco";
-connectAttr "groupId32.id" "ScannerV3Shape.iog.og[1].gid";
-connectAttr "RifleSG.mwc" "ScannerV3Shape.iog.og[1].gco";
-connectAttr "groupId33.id" "ScannerV3Shape.iog.og[2].gid";
-connectAttr "RifleSG1.mwc" "ScannerV3Shape.iog.og[2].gco";
+connectAttr "groupId34.id" "ScannerV3Shape.iog.og[0].gid";
+connectAttr "pasted__lambert3SG.mwc" "ScannerV3Shape.iog.og[0].gco";
+connectAttr "groupId35.id" "ScannerV3Shape.iog.og[1].gid";
+connectAttr "pasted__RifleSG.mwc" "ScannerV3Shape.iog.og[1].gco";
+connectAttr "groupId36.id" "ScannerV3Shape.iog.og[2].gid";
+connectAttr "pasted__RifleSG1.mwc" "ScannerV3Shape.iog.og[2].gco";
+connectAttr "skinCluster1GroupId.id" "ScannerV3Shape.iog.og[3].gid";
+connectAttr "skinCluster1Set.mwc" "ScannerV3Shape.iog.og[3].gco";
+connectAttr "groupId38.id" "ScannerV3Shape.iog.og[4].gid";
+connectAttr "tweakSet1.mwc" "ScannerV3Shape.iog.og[4].gco";
+connectAttr "skinCluster1.og[0]" "ScannerV3Shape.i";
+connectAttr "tweak1.vl[0].vt[0]" "ScannerV3Shape.twl";
+connectAttr "polyTweakUV1.uvtk[0]" "ScannerV3ShapeOrig.uvst[0].uvtw";
+connectAttr "polyTweakUV1.out" "ScannerV3ShapeOrig.i";
 connectAttr "MagGun_MatA_Inst3.oc" "RifleSG.ss";
 connectAttr "groupId29.msg" "RifleSG.gn" -na;
 connectAttr "groupId32.msg" "RifleSG.gn" -na;
-connectAttr "groupId35.msg" "RifleSG.gn" -na;
 connectAttr "ScannerV2Shape.iog.og[1]" "RifleSG.dsm" -na;
-connectAttr "ScannerV3Shape.iog.og[1]" "RifleSG.dsm" -na;
 connectAttr "ScannerV1Shape.iog.og[1]" "RifleSG.dsm" -na;
 connectAttr "RifleSG.msg" "materialInfo1.sg";
 connectAttr "MagGun_MatA_Inst3.msg" "materialInfo1.m";
 connectAttr "MagGun_MatB_Inst2.oc" "RifleSG1.ss";
 connectAttr "groupId30.msg" "RifleSG1.gn" -na;
 connectAttr "groupId33.msg" "RifleSG1.gn" -na;
-connectAttr "groupId36.msg" "RifleSG1.gn" -na;
 connectAttr "ScannerV2Shape.iog.og[2]" "RifleSG1.dsm" -na;
-connectAttr "ScannerV3Shape.iog.og[2]" "RifleSG1.dsm" -na;
 connectAttr "ScannerV1Shape.iog.og[2]" "RifleSG1.dsm" -na;
 connectAttr "RifleSG1.msg" "materialInfo2.sg";
 connectAttr "MagGun_MatB_Inst2.msg" "materialInfo2.m";
@@ -95783,85 +95728,105 @@ relationship "link" ":lightLinker1" "RifleSG2.message" ":defaultLightSet.message
 relationship "link" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" "lambert2SG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "lambert3SG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "pasted__RifleSG.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "pasted__RifleSG1.message" ":defaultLightSet.message";
+relationship "link" ":lightLinker1" "pasted__lambert3SG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "RifleSG.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "RifleSG1.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "RifleSG2.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
 relationship "shadowLink" ":lightLinker1" "lambert2SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "lambert3SG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "pasted__RifleSG.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "pasted__RifleSG1.message" ":defaultLightSet.message";
+relationship "shadowLink" ":lightLinker1" "pasted__lambert3SG.message" ":defaultLightSet.message";
 connectAttr "layerManager.dli[0]" "defaultLayer.id";
 connectAttr "renderLayerManager.rlmi[0]" "defaultRenderLayer.rlid";
-connectAttr "skinCluster1GroupParts.og" "skinCluster1.ip[0].ig";
-connectAttr "skinCluster1GroupId.id" "skinCluster1.ip[0].gi";
-connectAttr "bindPose1.msg" "skinCluster1.bp";
-connectAttr "ScannerRoot.wm" "skinCluster1.ma[0]";
-connectAttr "|ScannerRoot|ScannerBeam.wm" "skinCluster1.ma[1]";
-connectAttr "ScannerRoot.liw" "skinCluster1.lw[0]";
-connectAttr "|ScannerRoot|ScannerBeam.liw" "skinCluster1.lw[1]";
-connectAttr "ScannerRoot.obcc" "skinCluster1.ifcl[0]";
-connectAttr "|ScannerRoot|ScannerBeam.obcc" "skinCluster1.ifcl[1]";
-connectAttr "ScannerV1ShapeOrig.w" "groupParts1.ig";
+connectAttr "M_ScannerBeam.oc" "lambert2SG.ss";
+connectAttr "lambert2SG.msg" "materialInfo4.sg";
+connectAttr "M_ScannerBeam.msg" "materialInfo4.m";
+connectAttr "M_Screen.oc" "lambert3SG.ss";
+connectAttr "ScannerV1Shape.iog.og[0]" "lambert3SG.dsm" -na;
+connectAttr "ScannerV2Shape.iog.og[0]" "lambert3SG.dsm" -na;
+connectAttr "groupId31.msg" "lambert3SG.gn" -na;
+connectAttr "groupId28.msg" "lambert3SG.gn" -na;
+connectAttr "lambert3SG.msg" "materialInfo5.sg";
+connectAttr "M_Screen.msg" "materialInfo5.m";
+connectAttr "pasted__M_Screen.oc" "pasted__lambert3SG.ss";
+connectAttr "ScannerV3Shape.iog.og[0]" "pasted__lambert3SG.dsm" -na;
+connectAttr "groupId34.msg" "pasted__lambert3SG.gn" -na;
+connectAttr "pasted__lambert3SG.msg" "pasted__materialInfo5.sg";
+connectAttr "pasted__M_Screen.msg" "pasted__materialInfo5.m";
+connectAttr "pasted__MagGun_MatA_Inst3.oc" "pasted__RifleSG.ss";
+connectAttr "groupId35.msg" "pasted__RifleSG.gn" -na;
+connectAttr "ScannerV3Shape.iog.og[1]" "pasted__RifleSG.dsm" -na;
+connectAttr "pasted__RifleSG.msg" "pasted__materialInfo1.sg";
+connectAttr "pasted__MagGun_MatA_Inst3.msg" "pasted__materialInfo1.m";
+connectAttr "pasted__MagGun_MatB_Inst2.oc" "pasted__RifleSG1.ss";
+connectAttr "groupId36.msg" "pasted__RifleSG1.gn" -na;
+connectAttr "ScannerV3Shape.iog.og[2]" "pasted__RifleSG1.dsm" -na;
+connectAttr "pasted__RifleSG1.msg" "pasted__materialInfo2.sg";
+connectAttr "pasted__MagGun_MatB_Inst2.msg" "pasted__materialInfo2.m";
+connectAttr "lambert3SG.msg" "hyperShadePrimaryNodeEditorSavedTabsInfo.tgi[0].ni[0].dn"
+		;
+connectAttr "M_Screen.msg" "hyperShadePrimaryNodeEditorSavedTabsInfo.tgi[0].ni[1].dn"
+		;
+connectAttr "groupParts3.og" "polyPlanarProj1.ip";
+connectAttr "ScannerV3Shape.wm" "polyPlanarProj1.mp";
+connectAttr "polySurfaceShape1.o" "groupParts1.ig";
 connectAttr "groupId34.id" "groupParts1.gi";
 connectAttr "groupParts1.og" "groupParts2.ig";
 connectAttr "groupId35.id" "groupParts2.gi";
 connectAttr "groupParts2.og" "groupParts3.ig";
 connectAttr "groupId36.id" "groupParts3.gi";
+connectAttr "polyPlanarProj1.out" "polyFlipUV1.ip";
+connectAttr "ScannerV3Shape.wm" "polyFlipUV1.mp";
+connectAttr "polyFlipUV1.out" "polyFlipUV2.ip";
+connectAttr "ScannerV3Shape.wm" "polyFlipUV2.mp";
+connectAttr "polyFlipUV2.out" "polyTweakUV1.ip";
+connectAttr "skinCluster1GroupParts.og" "skinCluster1.ip[0].ig";
+connectAttr "skinCluster1GroupId.id" "skinCluster1.ip[0].gi";
+connectAttr "bindPose1.msg" "skinCluster1.bp";
+connectAttr "ScannerRoot.wm" "skinCluster1.ma[0]";
+connectAttr "ScannerBeam.wm" "skinCluster1.ma[1]";
+connectAttr "ScannerRoot.liw" "skinCluster1.lw[0]";
+connectAttr "ScannerBeam.liw" "skinCluster1.lw[1]";
+connectAttr "ScannerRoot.obcc" "skinCluster1.ifcl[0]";
+connectAttr "ScannerBeam.obcc" "skinCluster1.ifcl[1]";
 connectAttr "groupParts5.og" "tweak1.ip[0].ig";
 connectAttr "groupId38.id" "tweak1.ip[0].gi";
 connectAttr "skinCluster1GroupId.msg" "skinCluster1Set.gn" -na;
-connectAttr "ScannerV1Shape.iog.og[9]" "skinCluster1Set.dsm" -na;
+connectAttr "ScannerV3Shape.iog.og[3]" "skinCluster1Set.dsm" -na;
 connectAttr "skinCluster1.msg" "skinCluster1Set.ub[0]";
 connectAttr "tweak1.og[0]" "skinCluster1GroupParts.ig";
 connectAttr "skinCluster1GroupId.id" "skinCluster1GroupParts.gi";
 connectAttr "groupId38.msg" "tweakSet1.gn" -na;
-connectAttr "ScannerV1Shape.iog.og[10]" "tweakSet1.dsm" -na;
+connectAttr "ScannerV3Shape.iog.og[4]" "tweakSet1.dsm" -na;
 connectAttr "tweak1.msg" "tweakSet1.ub[0]";
-connectAttr "groupParts3.og" "groupParts5.ig";
+connectAttr "ScannerV3ShapeOrig.w" "groupParts5.ig";
 connectAttr "groupId38.id" "groupParts5.gi";
 connectAttr "ScannerRoot.msg" "bindPose1.m[0]";
-connectAttr "|ScannerRoot|ScannerBeam.msg" "bindPose1.m[1]";
+connectAttr "ScannerBeam.msg" "bindPose1.m[1]";
 connectAttr "bindPose1.w" "bindPose1.p[0]";
 connectAttr "bindPose1.m[0]" "bindPose1.p[1]";
 connectAttr "ScannerRoot.bps" "bindPose1.wm[0]";
-connectAttr "|ScannerRoot|ScannerBeam.bps" "bindPose1.wm[1]";
-connectAttr "skinCluster2GroupParts.og" "skinCluster2.ip[0].ig";
-connectAttr "skinCluster2GroupId.id" "skinCluster2.ip[0].gi";
-connectAttr "ScannerRoot.wm" "skinCluster2.ma[0]";
-connectAttr "|ScannerRoot|ScannerBeam.wm" "skinCluster2.ma[1]";
-connectAttr "ScannerRoot.liw" "skinCluster2.lw[0]";
-connectAttr "|ScannerRoot|ScannerBeam.liw" "skinCluster2.lw[1]";
-connectAttr "ScannerRoot.obcc" "skinCluster2.ifcl[0]";
-connectAttr "|ScannerRoot|ScannerBeam.obcc" "skinCluster2.ifcl[1]";
-connectAttr "bindPose1.msg" "skinCluster2.bp";
-connectAttr "groupParts7.og" "tweak2.ip[0].ig";
-connectAttr "groupId40.id" "tweak2.ip[0].gi";
-connectAttr "skinCluster2GroupId.msg" "skinCluster2Set.gn" -na;
-connectAttr "ScannerBeam1Shape.iog.og[0]" "skinCluster2Set.dsm" -na;
-connectAttr "skinCluster2.msg" "skinCluster2Set.ub[0]";
-connectAttr "tweak2.og[0]" "skinCluster2GroupParts.ig";
-connectAttr "skinCluster2GroupId.id" "skinCluster2GroupParts.gi";
-connectAttr "groupId40.msg" "tweakSet2.gn" -na;
-connectAttr "ScannerBeam1Shape.iog.og[1]" "tweakSet2.dsm" -na;
-connectAttr "tweak2.msg" "tweakSet2.ub[0]";
-connectAttr "ScannerBeam1ShapeOrig.w" "groupParts7.ig";
-connectAttr "groupId40.id" "groupParts7.gi";
-connectAttr "M_ScannerBeam.oc" "lambert2SG.ss";
-connectAttr "ScannerBeam1Shape.iog" "lambert2SG.dsm" -na;
-connectAttr "lambert2SG.msg" "materialInfo4.sg";
-connectAttr "M_ScannerBeam.msg" "materialInfo4.m";
+connectAttr "ScannerBeam.bps" "bindPose1.wm[1]";
 connectAttr "RifleSG.pa" ":renderPartition.st" -na;
 connectAttr "RifleSG1.pa" ":renderPartition.st" -na;
 connectAttr "RifleSG2.pa" ":renderPartition.st" -na;
 connectAttr "lambert2SG.pa" ":renderPartition.st" -na;
+connectAttr "lambert3SG.pa" ":renderPartition.st" -na;
+connectAttr "pasted__RifleSG.pa" ":renderPartition.st" -na;
+connectAttr "pasted__RifleSG1.pa" ":renderPartition.st" -na;
+connectAttr "pasted__lambert3SG.pa" ":renderPartition.st" -na;
 connectAttr "MagGun_MatA_Inst3.msg" ":defaultShaderList1.s" -na;
 connectAttr "MagGun_MatB_Inst2.msg" ":defaultShaderList1.s" -na;
 connectAttr "M_ScannerBeam.msg" ":defaultShaderList1.s" -na;
+connectAttr "M_Screen.msg" ":defaultShaderList1.s" -na;
+connectAttr "pasted__MagGun_MatA_Inst3.msg" ":defaultShaderList1.s" -na;
+connectAttr "pasted__MagGun_MatB_Inst2.msg" ":defaultShaderList1.s" -na;
+connectAttr "pasted__M_Screen.msg" ":defaultShaderList1.s" -na;
 connectAttr "defaultRenderLayer.msg" ":defaultRenderingList1.r" -na;
-connectAttr "ScannerBeamShape.iog" ":initialShadingGroup.dsm" -na;
-connectAttr "ScannerV2Shape.iog.og[0]" ":initialShadingGroup.dsm" -na;
-connectAttr "ScannerV3Shape.iog.og[0]" ":initialShadingGroup.dsm" -na;
-connectAttr "ScannerV1Shape.iog.og[0]" ":initialShadingGroup.dsm" -na;
-connectAttr "groupId28.msg" ":initialShadingGroup.gn" -na;
-connectAttr "groupId31.msg" ":initialShadingGroup.gn" -na;
-connectAttr "groupId34.msg" ":initialShadingGroup.gn" -na;
 // End of Scanner.ma

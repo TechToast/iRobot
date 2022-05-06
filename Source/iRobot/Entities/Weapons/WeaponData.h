@@ -139,32 +139,12 @@ struct FProximityWeaponData
 	GENERATED_USTRUCT_BODY()
 
 	/// Range of the actual scan weapon
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 	float WeaponRange = 100.f;
 
 	/// Radius of the scan weapon sweep
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 	float WeaponSweepRadius = 30.f;
-
-	/// Duration of each proximity pulse
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	float PulseDuration = 0.5f;
-
-	/// Duration of the visible sweep during a proximity pulse ( Must always be less than or equal to PulseDuration)
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	float PulseSweepDuration = 0.2f;
-
-	/// How long between proximity pulses
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	float TimeBetweenPulses = 2.f;
-
-	/// Pulse Radius
-	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
-	float PulseRadius = 300.f;
-
-	/// Type of damage
-	//UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
-	//TSubclassOf<UDamageType> DamageType = UDamageType::StaticClass();
 };
 
 
@@ -196,6 +176,18 @@ struct FInstantHitInfo
 
 	UPROPERTY()
 	int32 RandomSeed;
+};
+
+
+struct FProximityTargetLocation
+{
+	FProximityTargetLocation() {}
+	FProximityTargetLocation(const FVector2D& InLocation, const float InIntensity) 
+	 : Location(InLocation)
+	 , Intensity(InIntensity)
+	{}
+	FVector2D Location;
+	float Intensity;
 };
 
 

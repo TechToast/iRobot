@@ -27,6 +27,8 @@ public:
 	virtual int32 GetScanIndex(const FVector& ScanHitLocation) { return 0; }
 	/// End IScannable interface
 
+	void OnVelocityUpdated();
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void BeginPlay() override;
@@ -37,11 +39,15 @@ protected:
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, APawn* InstigatingPawn, AActor* DamageCauser) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
+	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust);
+	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust);
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 	// Input callbacks
 	//void OnHideButtonHeld();
 	//void OnHideButtonReleased();
 	void OnHideButtonPressed();
+	void OnCrouchButtonPressed();
 
 	/// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
