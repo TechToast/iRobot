@@ -669,11 +669,7 @@ void AWeapon::SimulateWeaponFire()
 	{
 		if (FireCameraShake != NULL)
 		{
-#if ENGINE_MINOR_VERSION > 26
 			PC->ClientStartCameraShake(FireCameraShake, 1);
-#else
-			PC->ClientPlayCameraShake(FireCameraShake, 1);
-#endif
 		}
 		/*if (FireForceFeedback != NULL && PC->IsVibrationEnabled())
 		{

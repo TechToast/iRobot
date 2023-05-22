@@ -68,7 +68,7 @@ void UMainMenu::Setup(ISessionMenu* MenuInterface)
 
 void UMainMenu::Teardown()
 {
-	this->RemoveFromViewport();
+	this->RemoveFromParent();
 
 	UWorld* World = GetWorld();
 	if (World == nullptr)

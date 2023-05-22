@@ -56,8 +56,8 @@ void ADummyRobotGroup::OnConstruction(const FTransform& Transform)
 			}
 
 			// Using the PerInstanceSMCustomData to allow us to change the colour per instance
-			InstancedMesh->NumCustomDataFloats = 1.f;
-			InstancedMesh->PerInstanceSMCustomData.SetNumZeroed(InstancedMesh->InstanceCountToRender);
+			//InstancedMesh->NumCustomDataFloats = 1.f;
+			//InstancedMesh->PerInstanceSMCustomData.SetNumZeroed(InstancedMesh->InstanceCountToRender);
 		}
 	}
 }
@@ -141,6 +141,7 @@ float ADummyRobotGroup::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 					FVector Diff = (InstanceTransform.GetLocation() + RadialDamageImpactPoint - RadialDamageEvent->Origin);
 					float DamageScale = RadialDamageEvent->Params.GetDamageScale(Diff.Size());
 					GridCells.Items[CellIndex].ImpactVelocity = Diff.GetSafeNormal() * FMath::Lerp(DamageTypeCDO->DamageImpulse * 0.5f, DamageTypeCDO->DamageImpulse, DamageScale);
+					GridCells.Items[CellIndex].ImpactVelocity += (FVector::UpVector * 80000.f); // Make 'em take off!
 
 					GridCells.MarkItemDirty(GridCells.Items[CellIndex]);
 
@@ -451,9 +452,9 @@ void ADummyRobotGroup::OnGridCellChange(const struct FGridCell2D& ChangedGridCel
 		{
 			FTransform InstanceTransform(CellTransforms[ChangedGridCell]);
 
-			int32 Value = ChangedGridCell.bScanned ? 1 : 0;
-			InstancedMesh->SetCustomDataValue(CellToInstanceMapping[ChangedGridCell], 0, Value, true);
-			InstancedMesh->BuildTreeIfOutdated(true, false);
+			//int32 Value = ChangedGridCell.bScanned ? 1 : 0;
+			//InstancedMesh->SetCustomDataValue(CellToInstanceMapping[ChangedGridCell], 0, Value, true);
+			//InstancedMesh->BuildTreeIfOutdated(true, false);
 
 			// Play sound
 			if (GetNetMode() != NM_DedicatedServer)

@@ -5,7 +5,7 @@
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "Framework/SlateDelegates.h"
 #include "Framework/Commands/UICommandList.h"
-#include "Toolkits/AssetEditorManager.h"
+//#include "Toolkits/AssetEditorManager.h"
 #include "LevelEditor.h"
 
 

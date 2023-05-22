@@ -108,6 +108,8 @@ void AProjectile::Explode(const FHitResult& Impact)
 	}
 
 	bExploded = true;
+
+	OnExplodedBP();
 }
 
 
@@ -143,6 +145,8 @@ void AProjectile::OnRep_Exploded()
 	}
 
 	Explode(Impact);
+
+	OnExplodedBP();
 }
 ///CODE_SNIPPET_END
 

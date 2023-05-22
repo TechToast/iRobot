@@ -94,7 +94,7 @@ UClass* AHunterGameMode::GetDefaultPawnClassForController_Implementation(AContro
 			// If the hunter has been allocated, just spawn further escapees
 			if (!bHunterAllocated)
 			{
-				iRobotPC->AllocatedPawnClass = HunterPawnClass.LoadSynchronous();
+				//iRobotPC->AllocatedPawnClass = HunterPawnClass.LoadSynchronous();
 				bHunterAllocated = true;
 			}
 			else

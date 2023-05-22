@@ -343,7 +343,7 @@ void AiRobotCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& D
 bool AiRobotCharacter::CanDie() const
 {
 	if (bIsDying 
-		|| IsPendingKill()	
+		|| IsValid(this)	
 		|| GetLocalRole() != ROLE_Authority
 		|| GetWorld()->GetAuthGameMode() == nullptr
 		//|| GetWorld()->GetAuthGameMode()->GetMatchState() == MatchState::LeavingMap
@@ -382,7 +382,7 @@ void AiRobotCharacter::SetRagdollPhysics()
 {
 	bool bInRagdoll = false;
 
-	if (!IsPendingKill() && GetMesh() && GetMesh()->GetPhysicsAsset())
+	if (!IsValid(this) && GetMesh() && GetMesh()->GetPhysicsAsset())
 	{
 		// initialize physics/etc
 		GetMesh()->SetSimulatePhysics(true);
@@ -442,9 +442,9 @@ void AiRobotCharacter::Interact()
 	FHitResult Hit(ForceInit);
 	GetWorld()->LineTraceSingleByProfile(Hit, StartTrace, EndTrace, UCollisionProfile::BlockAll_ProfileName, TraceParams);
 
-	if (Hit.bBlockingHit && Hit.Actor != nullptr)
+	if (Hit.bBlockingHit && Hit.GetActor() != nullptr)
 	{
-		if (IInteractable* InteractableActor = Cast<IInteractable>(Hit.Actor))
+		if (IInteractable* InteractableActor = Cast<IInteractable>(Hit.GetActor()))
 		{
 			InteractableActor->OnInteraction(this, Hit);
 		}

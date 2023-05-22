@@ -20,7 +20,8 @@ public class iRobot : ModuleRules
 				"PhysicsCore",
 				"UMG",
 				"Json",
-				"JsonUtilities"
+				"JsonUtilities",
+				"NetCore",
 			}
 		);
 

@@ -56,6 +56,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
 	UParticleSystemComponent* ParticleComp;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnExplodedBP();
+
 private:
 
 	/// Handle hit

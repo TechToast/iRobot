@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Net/Serialization/FastArraySerializer.h"
 #include "DummyRobotGridData.generated.h"
 
 class ADummyRobotGroup;
